@@ -2,6 +2,8 @@
 const bingFragments = [ "Anhz", "u3sc", "lddW", "XySE", "_-mD", "47H8", "2t3i", "GAHV", "uUrv", "6zb1", "QY5f", "_m2a", "Y-df", "-5A2", "lzMb", "8FyP" ];
 const zipFragments = [ "5fMZ", "uis6", "biA4", "ZNwR", "9h1q", "ZKEC", "nEdI", "Up8D", "Eaiq", "OyJG", "UPNU", "r7eG", "ri8E", "MCxz", "EloA", "75Qa" ];
 
+const stateLookup = { AL: "Alabama", AK: "Alaska", AS: "American Samoa", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado", CT: "Connecticut", DE: "Delaware", DC: "District of Columbia", FL: "Florida", GA: "Georgia", GU: "Guam", HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey", NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", MP: "North Mariana Is", OH: "Ohio", OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", PR: "Puerto Rico", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", VI: "Virgin Islands", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming"};
+
 const breweryColorDefault = "#208020";
 const breweryColorFavorite = "#4080ff";
 const breweryColorVisited = "#206020";
@@ -215,8 +217,29 @@ var initialize = function() {
 	scriptEl.setAttribute("defer", "");
 	document.head.appendChild(scriptEl);
 
-	if (navigator.geolocation) {
-		// TODO!
+	if (navigator.geolocation)
+	{
+		navigator.geolocation.getCurrentPosition((position) => 
+		{
+			fetch(
+				"http://dev.virtualearth.net/REST/v1/Locations/" + position.coords.latitude + "," + position.coords.longitude + "?key=" + buildKey
+			).then(function (response) {
+				if (response.ok) {
+					response.json().then(function (data) {
+						// Weirdly, the city doesn't get its own field in the response, so we'll extract it from the full address.
+						// Formatted address looks like: "123 Easy St, Anytown, WI 54799"
+						var addressParts = data.resourceSets[0].resources[0].address.formattedAddress.split(",");
+
+						$("#byCity").val(addressParts[1].trim());
+						$("#distanceZip").val(data.resourceSets[0].resources[0].address.postalCode);
+
+						if (data.resourceSets[0].resources[0].address.adminDistrict in stateLookup) {
+							$("#byState").val(stateLookup[data.resourceSets[0].resources[0].address.adminDistrict]);
+						}
+					});
+				}
+			});
+		});
 	}
 }
 
