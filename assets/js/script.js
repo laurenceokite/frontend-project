@@ -51,29 +51,38 @@ var searchCityState = function(event) {
 var processBreweryData = function(data) {
 	breweryData = data;
 
-	for (var i = 0; i < breweryData.length; i++) {
-		breweryList.append(
-			"<li class='list-group-item flex-container align-justify align-middle'>" +
-                "<div>" +
-                  "<strong>" + breweryData[i].name + "</strong>" +
-                  "<p class='subheader'>" + breweryData[i].street + ", " + breweryData[i].city + "</p>" +
-                "</div>" +
-                "<div class='flex-container'>" +
-                  "<div class='checkbox'>" +
-                    "<input id='favorite' class='checkbox-element' type='checkbox'  name='favorite' value='favorited'>" + // TODO - Set value! -done
-                    "<i class='foundicon-heart'></i>" +
-                  "</div>" +
-                  "<div class='checkbox'>" +
-                    "<input id='check' class='checkbox-element' type='checkbox' name='visited' value='visited'>" + // TODO - Set value! -done
-                    "<i class='foundicon-checkmark'></i>" +
-                  "</div>" +
-                "</div>" +
-              "</li>"
-		);
+	breweryData.sort(function(a, b) {
+		return a.name.localeCompare(b.name);
+	});
 
-		// If we don't have location info, get it from Bing!
-		if ((!breweryData[i].latitude) || (!breweryData[i].longitude)) {
-			getLatitudeLongitude(i);
+	for (var i = 0; i < breweryData.length; i++) {
+		if ((breweryData[i].street) && (breweryData[i].brewery_type != "planning")) {
+			breweryList.append(
+				"<li class='list-group-item flex-container align-justify align-middle'>" +
+					"<div>" +
+					"<strong>" + breweryData[i].name + "</strong>" +
+					"<p class='subheader'>" + breweryData[i].street + ", " + breweryData[i].city + "</p>" +
+					"</div>" +
+					"<div class='flex-container'>" +
+					"<div class='checkbox'>" +
+						"<input id='favorite' class='checkbox-element' type='checkbox'  name='favorite' value='favorited'>" + // TODO - Set value! -done
+						"<i class='foundicon-heart'></i>" +
+					"</div>" +
+					"<div class='checkbox'>" +
+						"<input id='check' class='checkbox-element' type='checkbox' name='visited' value='visited'>" + // TODO - Set value! -done
+						"<i class='foundicon-checkmark'></i>" +
+					"</div>" +
+					"</div>" +
+				"</li>"
+			);
+
+			// If we don't have location info, get it from Bing!
+			if ((!breweryData[i].latitude) || (!breweryData[i].longitude)) {
+				getLatitudeLongitude(i, true);
+			}
+		} else {
+			breweryData.splice(i, 1);
+			i--; // There is now a new item at our current position, pull the list counter back by one so it gets processed.
 		}
 	}
 
@@ -81,7 +90,7 @@ var processBreweryData = function(data) {
 }
 
 // Helper function - Retrieve missing lat/lon for brewery at the given index in our data.
-var getLatitudeLongitude = function(idx) {
+var getLatitudeLongitude = function(idx, updateMapBounds=false) {
 	var buildKey = "";
 
 	for (var i = 0; i < bingFragments.length; i++) {
@@ -99,6 +108,10 @@ var getLatitudeLongitude = function(idx) {
 				}
 
 				createMapPin(idx);
+
+				if (updateMapBounds) {
+					calculateMapBounds();
+				}
 			});
 		}
 	})
@@ -131,7 +144,21 @@ var refreshMap = function() {
 		}
 	}
 
-	// TODO - Calculate map position/bounds so it shows all pins!
+	calculateMapBounds();
+}
+
+// Change the viewing area for the map.
+// Called when pins are added, but also as getLatitudeLongitude calls come in.
+var calculateMapBounds = function() {
+	var locs = [];
+
+	for (var i = 0; i < breweryData.length; i++) {
+		if (breweryData[i].pin) {
+			locs.push(breweryData[i].pin.getLocation());
+		}
+	}
+
+	map.setView({ bounds: Microsoft.Maps.LocationRect.fromLocations(locs), padding: 80 });
 }
 
 // Creates a map pin for the brewery at the specified index.
@@ -187,6 +214,10 @@ var initialize = function() {
 	scriptEl.setAttribute("async", "");
 	scriptEl.setAttribute("defer", "");
 	document.head.appendChild(scriptEl);
+
+	if (navigator.geolocation) {
+		// TODO!
+	}
 }
 
 initialize();
