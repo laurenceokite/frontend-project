@@ -227,6 +227,7 @@ var initialize = function() {
 				if (response.ok) {
 					response.json().then(function (data) {
 						// Weirdly, the city doesn't get its own field in the response, so we'll extract it from the full address.
+						// Estimated street address is in data.resourceSets[0].resources[0].address.addressLine
 						// Formatted address looks like: "123 Easy St, Anytown, WI 54799"
 						var addressParts = data.resourceSets[0].resources[0].address.formattedAddress.split(",");
 
