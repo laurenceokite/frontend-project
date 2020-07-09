@@ -30,13 +30,13 @@
   <main class="grid-container">
     <div style="height: 80vh;" class="grid-x align-center align-middle m10">
       <!-- accordion search -->
-      <ul id="searchForm" class="cell small-10 accordion" data-accordion data-multi-expand="true">
+      <ul id="searchForm" class="cell small-10 accordion" data-accordion>
         <li class="accordion-item is-active" data-accordion-item>
           <a href="#" class="accordion-title">Search</a>
           <div class="accordion-content" data-tab-content>
             <div class="grid-container">
-              <form class="grid-x grid-padding-x align-bottom">
-                <div class="cell small-12 large-6">
+              <form class="grid-x grid-padding-x align-center align-bottom">
+                <div class="cell small-8 large-6">
                   <label for="byCity">City:</label>
                   <input type="text" id="byCity" placeholder="City">
                 </div>
@@ -99,40 +99,11 @@
                   </label>
                  
                 </div>
-                <div class="cell small-12 large-4 flex-container align-middle">
-                  <button id="searchCityState" type="submit" class="button small submit">Search</button>
+                <div class="cell small-11 large-2 flex-container align-middle">
+                  <button id="searchCityState" type="submit" class="button medium medium-down-expanded submit">Search</button>
                 </div>  
               </form>
             </div>
-          </div>
-        </li>
-        <!-- filter -->
-        <li id="filterBy" class="accordion-item" data-accordion-item>
-          <a href="#" class="accordion-title">Filter</a>
-          <div class="accordion-content" data-tab-content>
-            <div class="grid-container full">
-              <div class="grid-x grid-margin-x grid-margin-y align-middle align-spaced">
-                  <fieldset class="fieldset cell auto">
-                    <legend>Type</legend>
-                    <input id="microFilter" type="checkbox"><label for="microFilter">Micro</label>
-                    <input id="regionalFilter" type="checkbox"><label for="regionalFilter">Regional</label>
-                    <input id="brewpubFilter" type="checkbox"><label for="brewpubFilter">Brewpub</label>
-                    <input id="largeFilter" type="checkbox"><label for="largeFilter">Large</label>
-                  </fieldset>
-                  <fieldset class="cell small-12 large-3 grid-margin-x">
-                    <legend>Visited</legend>
-                    <input type="radio" name="visited" value="Yes" id="visitedFilter" required><label for="visitedFilter">Yes</label>
-                    <input type="radio" name="visited" value="No" id="unvisitedFilter"><label for="unvisitedFilter">No</label>
-                  </fieldset>
-                <div class="cell small-12 large-3 grid-margin-x">
-                  <p>Favorites</p>
-                  <div class="switch tiny">
-                    <input class="switch-input" id="favoritesFilter" type="checkbox" name="favoritesFilter">
-                    <label class="switch-paddle" for="favoritesFilter"></label>
-                  </div>
-                </div>
-              </div>
-            </div>  
           </div>
         </li>
         <!-- range search -->
@@ -141,11 +112,11 @@
           <div class="accordion-content" data-tab-content>
             <div class="grid-container">
               <form id="byDistance">
-                <div class="grid-x grid-padding-x">
-                  <div class="small-2 medium-2 cell">
-                    <label for="distanceOption" class="text-right middle">Within</label>
+                <div class="grid-x grid-padding-x align-middle align-center">
+                  <div class="small-2 medium-2 large-1 cell grid-padding-x">
+                    <label for="distanceOption" class="medium-text-right middle">Within</label>
                   </div>
-                  <div class="small-9 medium-2 cell">
+                  <div class="small-10 medium-2 cell">
                     <select id="distanceOption">
                       <option>5</option>
                       <option>10</option>
@@ -153,18 +124,67 @@
                       <option>50</option>
                     </select>
                   </div>
-                  <div class="small-2 medium-2 cell">
-                    <label for="distanceZip" class="text-right middle">miles of</label>
+                  <div class="small-2 medium-2 cell grid-padding-x">
+                    <label for="distanceZip" class="medium-text-right middle">miles of</label>
                   </div>
-                  <div class="small-9 medium-3 cell">
-                    <input type="text" id="distanceZip" placeholder="ZIP Code">
+                  <div class="small-10 medium-4 large-3 cell">
+                    <div class="flex-container button-input">
+                      <input type="text" id="distanceZip" placeholder="ZIP Code">
+                      <button class="pin-button"><i class="foundicon-location"></i></button>
+                    </div>  
                   </div>
-                  <div class="cell small-12 medium-2 flex-container align-middle">
-                    <button id="searchCityState" type="submit" class="button small submit">Search</button>
+                  <div class="cell small-12 medium-10 large-2 flex-container align-right">
+                    <button id="searchCityState" type="submit" class="button medium medium-down-expanded submit">Search</button>
                   </div>  
                 </div>
               </form>
             </div>
+          </div>
+        </li>
+      </ul>  
+        <!-- filter -->
+      <ul class="cell small-10 accordion" data-accordion data-allow-all-closed="true">  
+        <li id="filterBy" class="accordion-item" data-accordion-item>
+          <a href="#" class="accordion-title">Filter</a>
+          <div class="accordion-content" data-tab-content>
+            <div class="grid-container full">
+              <div class="grid-x grid-margin-x grid-margin-y align-middle align-spaced">
+                  <fieldset class="fieldset cell large-5 align-self-stretch">
+                    <legend>Type</legend>
+                    <span style="white-space: nowrap;">
+                      <input id="microFilter" type="checkbox"><label for="microFilter">Micro</label>
+                    </span>
+                    <span style="white-space: nowrap;">
+                      <input id="regionalFilter" type="checkbox"><label for="regionalFilter">Regional</label>
+                    </span>
+                    <span style="white-space: nowrap;">
+                      <input id="brewpubFilter" type="checkbox"><label for="brewpubFilter">Brewpub</label>
+                    </span>
+                    <span style="white-space: nowrap;">
+                      <input id="largeFilter" type="checkbox"><label for="largeFilter">Large</label>
+                    </span>  
+                  </fieldset>
+                  <fieldset class="fieldset cell small-8 large-5 grid-margin-x align-self-stretch">
+                    <legend>Visited</legend>
+                    <span style="white-space: nowrap;">
+                      <input type="radio" name="visited" value="Yes" id="visitedFilter" required><label for="visitedFilter">Yes</label>
+                    </span>  
+                    <span style="white-space: nowrap;">  
+                      <input type="radio" name="visited" value="No" id="unvisitedFilter"><label for="unvisitedFilter">No</label>
+                    </span>  
+                    <span style="white-space: nowrap;">  
+                      <input type="radio" name="visited" value="All" id="allVisitedFilter"><label for="allVisitedFilter">All</label>
+                    </span>  
+                  </fieldset>
+                <fieldset class="fieldset cell small-4 large-2 text-center grid-margin-x align-self-stretch align-middle">
+                  <legend>Favorites</legend>
+                  <div class="switch tiny">
+                    <input class="switch-input" id="favoritesFilter" type="checkbox" name="favoritesFilter">
+                    <label class="switch-paddle" for="favoritesFilter"></label>
+                  </div>
+                </fieldsetv>
+              </div>
+            </div>  
           </div>
         </li>
       </ul>
@@ -172,8 +192,8 @@
       <div id="output" class="cell small-10">
         <div style="height: 40vh;" class="grid-x">
           <!-- map goes here -->
-          <div id="mapDisplay" class="cell small-12 medium-6" style="position: relative; height: 40vh; background-color:darkgray;"></div>
-          <div class="cell small-12 medium-6 medium-cell-block-y">
+          <div id="mapDisplay" class="cell small-12 large-6" style="position: relative; height: 40vh; background-color:darkgray;"></div>
+          <div class="cell small-12 large-6 medium-cell-block-y">
             <ol id="breweryList" class="list-group"></ol>
           </div>
         </div>  

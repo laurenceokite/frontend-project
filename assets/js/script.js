@@ -60,11 +60,11 @@ var processBreweryData = function(data) {
                 "</div>" +
                 "<div class='flex-container'>" +
                   "<div class='checkbox'>" +
-                    "<input id='favorite' class='checkbox-element' type='checkbox'>" + // TODO - Set value!
+                    "<input id='favorite' class='checkbox-element' type='checkbox'  name='favorite' value='favorited'>" + // TODO - Set value! -done
                     "<i class='foundicon-heart'></i>" +
                   "</div>" +
                   "<div class='checkbox'>" +
-                    "<input id='check' class='checkbox-element' type='checkbox'>" + // TODO - Set value!
+                    "<input id='check' class='checkbox-element' type='checkbox' name='visited' value='visited'>" + // TODO - Set value! -done
                     "<i class='foundicon-checkmark'></i>" +
                   "</div>" +
                 "</div>" +
