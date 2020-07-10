@@ -123,7 +123,8 @@ var getLatitudeLongitude = function(idx, updateMapBounds=false) {
 var refreshMap = function() {
 	if (!breweryList.children().length) {
 		// TODO - Hide output div!  Just adding Foundation's hide class here breaks layout???
-		//$("#output").addClass("hide");
+		$("#breweryList").addClass("hide");
+		$("#mapDisplay").addClass("hide");
 		return;
 	}
 
@@ -138,7 +139,8 @@ var refreshMap = function() {
 	}
 
 	// TODO - Unhide output div!
-	//$("#output").removeClass("hide");
+	$("#breweryList").removeClass("hide");
+	$("#mapDisplay").removeClass("hide");
 
 	for (var i = 0; i < breweryData.length; i++) {
 		if ((breweryData[i].latitude) && (breweryData[i].longitude)) {
