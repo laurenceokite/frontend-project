@@ -13,6 +13,7 @@
 
 .pin-button:hover {
   background-color: rgb(230, 230, 230);
+  
 }
 
 .button-input {
@@ -34,6 +35,7 @@ input, select {
   background-color: rgba(255,255,255,.0);
   margin: 0 !important;
 }
+
 
 .checkbox-element {
   position: absolute;
@@ -59,6 +61,14 @@ input, select {
   color:rgb(0, 0, 0);
 }
 
+.brewery-list-item {
+  font-size: smaller;
+}
+
+.brewery-list {
+  border: 1px solid #e6e6e6;
+}
+
 .list-group {
   margin-bottom: 1rem;
   border: 1px solid #e6e6e6;
@@ -74,7 +84,7 @@ input, select {
 }
   
 .list-group-item {
-  padding: 1rem;
+  padding: 0 .5rem;
   border-bottom: 1px solid #e6e6e6;
 }
   
