@@ -72,7 +72,7 @@ var processBreweryData = function(data) {
 	for (var i = 0; i < breweryData.length; i++) {
 		if ((breweryData[i].street) && (breweryData[i].brewery_type != "planning")) {
 			breweryList.append(
-				"<li class='list-group-item flex-container align-justify align-middle'>" +
+				"<li class='list-group-item flex-container align-justify align-middle brewery-list-item'>" +
 					"<div>" +
 					"<strong>" + breweryData[i].name + "</strong>" +
 					"<p class='subheader'>" + breweryData[i].street + ", " + breweryData[i].city + "</p>" +
