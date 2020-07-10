@@ -6,9 +6,11 @@ const stateLookup = { AL: "Alabama", AK: "Alaska", AS: "American Samoa", AZ: "Ar
 
 const breweryColorDefault = "#208020";
 const breweryColorFavorite = "#4080ff";
-const breweryColorVisited = "#206020";
+const breweryColorVisited = "#608060";
 
 var breweryList = $("#breweryList");
+var favoriteList = JSON.parse(localStorage.getItem("hopToFavorites")) || [];
+var visitedList = JSON.parse(localStorage.getItem("hopToVisited")) || [];
 
 var map // Microsoft map object.
 var breweryData = [];
@@ -49,6 +51,16 @@ var searchCityState = function(event) {
 	})
 }
 
+var processFavoriteClick = function() {
+	var currentCB = $(this);
+	setBreweryFavorite(currentCB.attr("data-index"), currentCB.prop("checked"));
+}
+
+var processVisitedClick = function() {
+	var currentCB = $(this);
+	setBreweryVisited(currentCB.attr("data-index"), currentCB.prop("checked"));
+}
+
 // Displays returned brewery data to the screen.
 var processBreweryData = function(data) {
 	breweryData = data;
@@ -67,11 +79,11 @@ var processBreweryData = function(data) {
 					"</div>" +
 					"<div class='flex-container'>" +
 					"<div class='checkbox'>" +
-						"<input id='favorite' class='checkbox-element' type='checkbox'  name='favorite' value='favorited'>" + // TODO - Set value! -done
+						"<input data-index='" + i + "' class='checkbox-element' type='checkbox'  name='favorite'" + ((favoriteList.indexOf(breweryData[i].id) > -1) ? "checked" : "") + ">" +
 						"<i class='foundicon-heart'></i>" +
 					"</div>" +
 					"<div class='checkbox'>" +
-						"<input id='check' class='checkbox-element' type='checkbox' name='visited' value='visited'>" + // TODO - Set value! -done
+						"<input data-index='" + i + "' class='checkbox-element' type='checkbox' name='visited'" + ((visitedList.indexOf(breweryData[i].id) > -1) ? "checked" : "") + ">" +
 						"<i class='foundicon-checkmark'></i>" +
 					"</div>" +
 					"</div>" +
@@ -169,11 +181,20 @@ var calculateMapBounds = function() {
 // This is in its own function because it can be used by getLatitudeLongitude or refreshMap.
 var createMapPin = function(idx) {
 	if (!breweryData[idx].pin) {
-		//Create custom Pushpin
+		var setColor;
+
+		if (favoriteList.indexOf(breweryData[idx].id) > -1) {
+			setColor = breweryColorFavorite;
+		} else if (visitedList.indexOf(breweryData[idx].id) > -1) {
+			setColor = breweryColorVisited;
+		} else {
+			setColor = breweryColorDefault;
+		}
+
 		var loc = new Microsoft.Maps.Location(breweryData[idx].latitude, breweryData[idx].longitude);
 		pin = new Microsoft.Maps.Pushpin(loc, {
 			title: breweryData[idx].name,
-			color: breweryColorDefault, // TODO - Pick color based on favorite/visited status!
+			color: setColor,
 			text: (idx + 1).toString()
 		});
 
@@ -185,23 +206,48 @@ var createMapPin = function(idx) {
 }
 
 var setBreweryFavorite = function(idx, favorite) {
-	// TODO - localStorage manipulation!
 	if (favorite) {
 		breweryData[idx].pin.setOptions({color: breweryColorFavorite});
+
+		if (favoriteList.indexOf(breweryData[idx].id) < 0) {
+			favoriteList.push(breweryData[idx].id);
+		}
 	} else {
-		// TODO - Check visited status and set accordingly!
-		breweryData[idx].pin.setOptions({color: breweryColorDefault});
+		var setColor = (visitedList.indexOf(breweryData[idx].id) < 0) ? breweryColorDefault : breweryColorVisited;
+		breweryData[idx].pin.setOptions({color: setColor});
+
+		var findMe = favoriteList.indexOf(breweryData[idx].id);
+
+		if (findMe > -1) {
+			favoriteList.splice(findMe, 1);
+		}
 	}
+
+	localStorage.setItem("hopToFavorites", JSON.stringify(favoriteList));
 }
 
 var setBreweryVisited = function(idx, visited) {
-	// TODO - localStorage manipulation!
-	// TODO - Once we can check if a brewery is favorited, we shoult let the favorite color overrule, and return out of here.
 	if (visited) {
-		breweryData[idx].pin.setOptions({color: breweryColorVisited});
+		if (favoriteList.indexOf(breweryData[idx].id) < 0) { // Only change color if not already favorited.
+			breweryData[idx].pin.setOptions({color: breweryColorVisited});
+		}
+
+		if (visitedList.indexOf(breweryData[idx].id) < 0) {
+			visitedList.push(breweryData[idx].id);
+		}
 	} else {
-		breweryData[idx].pin.setOptions({color: breweryColorDefault});
+		if (favoriteList.indexOf(breweryData[idx].id) < 0) { // Only change color if not already favorited.
+			breweryData[idx].pin.setOptions({color: breweryColorDefault});
+		}
+
+		var findMe = visitedList.indexOf(breweryData[idx].id);
+
+		if (findMe > -1) {
+			visitedList.splice(findMe, 1);
+		}
 	}
+
+	localStorage.setItem("hopToVisited", JSON.stringify(visitedList));
 }
 
 // Assembles our Bing key and adds the necessary JS reference.
@@ -250,3 +296,5 @@ initialize();
 $(document).foundation();
 
 $("#searchCityState").on("click", searchCityState);
+$("#breweryList").on("click", "input[name='favorite']", processFavoriteClick);
+$("#breweryList").on("click", "input[name='visited']", processVisitedClick);
