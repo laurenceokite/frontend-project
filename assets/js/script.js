@@ -37,7 +37,6 @@ var searchCityState = function(event) {
 	// TODO - Add filters if needed - probably put this in its own function so radius search can use it too.
 
 	fetch(fetchUrl + "per_page=50").then(function (response) {
-		breweryList.text(""); // Clear previous results.
 
 		if (response.ok) {
 			// TODO - How to deal with paginated results?  I'd like to combine them into a single large list.
@@ -69,12 +68,25 @@ var processBreweryData = function(data) {
 		return a.name.localeCompare(b.name);
 	});
 
+	breweryList.text(""); // Clear previous results.
+
+	console.log(breweryData.length);
+	if (breweryData.length === 0) {
+		console.log('nothing here');
+		breweryList.append(
+			"<li style='border: none; color: rgb(180, 180, 180); background-color: rgb(230, 230, 230, 0.1); height:50vh;' class='flex-container align-middle align-center'>"
+			+ "There Doesn't Seem to Be Any Breweries Here.</li>"
+		); 
+		return;
+	}
+
 	for (var i = 0; i < breweryData.length; i++) {
+
 		if ((breweryData[i].street) && (breweryData[i].brewery_type != "planning")) {
 			breweryList.append(
 				"<li class='list-group-item flex-container align-justify align-middle brewery-list-item'>" +
 					"<div>" +
-					"<strong>" + breweryData[i].name + "</strong>" +
+					"<strong><a>" + breweryData[i].name + "</a></strong>" +
 					"<p class='subheader'>" + breweryData[i].street + ", " + breweryData[i].city + "</p>" +
 					"</div>" +
 					"<div class='flex-container'>" +
@@ -135,9 +147,7 @@ var getLatitudeLongitude = function(idx, updateMapBounds=false) {
 var refreshMap = function() {
 	if (!breweryList.children().length) {
 		// TODO - Hide output div!  Just adding Foundation's hide class here breaks layout???
-		$("#breweryList").addClass("hide");
-		$("#mapDisplay").addClass("hide");
-		return;
+		return false;
 	}
 
 	var pin;
@@ -153,6 +163,7 @@ var refreshMap = function() {
 	// TODO - Unhide output div!
 	$("#breweryList").removeClass("hide");
 	$("#mapDisplay").removeClass("hide");
+	$("#mapToggle").removeClass("hide");
 
 	for (var i = 0; i < breweryData.length; i++) {
 		if ((breweryData[i].latitude) && (breweryData[i].longitude)) {

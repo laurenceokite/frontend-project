@@ -13,7 +13,7 @@
 
 .pin-button:hover {
   background-color: rgb(230, 230, 230);
-  
+
 }
 
 .button-input {
@@ -27,6 +27,10 @@ label.middle {
 
 input, select {
   margin: 1rem 0 !important;
+}
+
+ol {
+  margin: 0;
 }
 
 .button-input input {
@@ -61,16 +65,16 @@ input, select {
   color:rgb(0, 0, 0);
 }
 
-.brewery-list-item {
+.brewery-list-item p {
   font-size: smaller;
 }
 
-.brewery-list {
-  border: 1px solid #e6e6e6;
+#mapToggle {
+  border: none;
+  background-color: #e6e6e6;
 }
 
 .list-group {
-  margin-bottom: 1rem;
   border: 1px solid #e6e6e6;
   border-radius: 0;
   background: #fefefe;

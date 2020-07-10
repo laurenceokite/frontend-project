@@ -28,7 +28,7 @@
   </header>
   <!-- main grid -->
   <main class="grid-container">
-    <div style="height: 80vh;" class="grid-x align-center align-middle m10">
+    <div class="grid-x align-center align-middle m10">
       <!-- accordion search -->
       <ul id="searchForm" class="cell small-10 accordion" data-accordion>
         <li class="accordion-item is-active" data-accordion-item>
@@ -134,7 +134,7 @@
                     </div>  
                   </div>
                   <div class="cell small-12 medium-10 large-2 flex-container align-right">
-                    <button id="searchZipRadius" type="submit" class="button medium medium-down-expanded submit">Search</button>
+                    <button id="searchCityState" type="submit" class="button medium medium-down-expanded submit">Search</button>
                   </div>  
                 </div>
               </form>
@@ -182,7 +182,7 @@
                     <input class="switch-input" id="favoritesFilter" type="checkbox" name="favoritesFilter">
                     <label class="switch-paddle" for="favoritesFilter"></label>
                   </div>
-                </fieldsetv>
+                </fieldset>
               </div>
             </div>  
           </div>
@@ -190,17 +190,30 @@
       </ul>
       <!-- map and list -->
       <div id="output" class="cell small-10">
-        <div style="height: 50vh;" class="grid-x">
+        <div class="grid-x">
           <!-- map goes here -->
-          <div id="mapDisplay" class="cell small-12 large-6" style="position: relative; height: 50vh; background-color:white;"></div>
-          <div class="cell small-12 large-6 medium-cell-block-y">
-            <ol id="breweryList" class="list-group"></ol>
+          <div id="mapDisplay" class="cell small-12 large-6 hide" style="position: relative; height: 50vh; background-color:white"></div>
+          <div class="cell small-12 large-6">
+            <div style="height: 45vh;" class="grid-x">
+              <ol id="mapToggle" class="cell list-group hide">
+                <li style="height: 5vh;" class="list-group-item">
+                  <div class="tiny button-group no-gaps">
+                    <a class="secondary button">Breweries</a>
+                    <a class="secondary button hollow">Route</a>
+                  </div>
+                </li>
+              </ol>
+              <div class="cell cell-block-y brew-list">
+                <ol id="breweryList" class="list-group hide">
+                </ol>
+              </div>
+            </div>  
           </div>
-        </div>
+        </div>  
       </div>
     </div>
   </main>
-  <footer style="margin-top: 40vh;" class="top-bar grid-x">
+  <footer style="margin-top: 10vh;" class="top-bar grid-x">
     <div class="top-bar-right">
       <p>&copy;2020 Hop To</p>
     </div>
