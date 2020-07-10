@@ -34,8 +34,6 @@ var searchCityState = function(event) {
 		return;
 	}
 
-	// TODO - Add filters if needed - probably put this in its own function so radius search can use it too.
-
 	fetch(fetchUrl + "per_page=50").then(function (response) {
 
 		if (response.ok) {
@@ -50,265 +48,6 @@ var searchCityState = function(event) {
 	})
 }
 
-var processFavoriteClick = function() {
-	var currentCB = $(this);
-	setBreweryFavorite(currentCB.attr("data-index"), currentCB.prop("checked"));
-}
-
-var processVisitedClick = function() {
-	var currentCB = $(this);
-	setBreweryVisited(currentCB.attr("data-index"), currentCB.prop("checked"));
-}
-
-// Displays returned brewery data to the screen.
-var processBreweryData = function(data) {
-	breweryData = data;
-
-	breweryData.sort(function(a, b) {
-		return a.name.localeCompare(b.name);
-	});
-
-	breweryList.text(""); // Clear previous results.
-
-	console.log(breweryData.length);
-	if (breweryData.length === 0) {
-		console.log('nothing here');
-		breweryList.append(
-			"<li style='border: none; color: rgb(180, 180, 180); background-color: rgb(230, 230, 230, 0.1); height:50vh;' class='flex-container align-middle align-center'>"
-			+ "There Doesn't Seem to Be Any Breweries Here.</li>"
-		); 
-		return;
-	}
-
-	for (var i = 0; i < breweryData.length; i++) {
-
-		if ((breweryData[i].street) && (breweryData[i].brewery_type != "planning")) {
-			breweryList.append(
-				"<li class='list-group-item flex-container align-justify align-middle brewery-list-item'>" +
-					"<div>" +
-					"<strong><a>" + breweryData[i].name + "</a></strong>" +
-					"<p class='subheader'>" + breweryData[i].street + ", " + breweryData[i].city + "</p>" +
-					"</div>" +
-					"<div class='flex-container'>" +
-					"<div class='checkbox'>" +
-						"<input data-index='" + i + "' class='checkbox-element' type='checkbox'  name='favorite'" + ((favoriteList.indexOf(breweryData[i].id) > -1) ? "checked" : "") + ">" +
-						"<i class='foundicon-heart'></i>" +
-					"</div>" +
-					"<div class='checkbox'>" +
-						"<input data-index='" + i + "' class='checkbox-element' type='checkbox' name='visited'" + ((visitedList.indexOf(breweryData[i].id) > -1) ? "checked" : "") + ">" +
-						"<i class='foundicon-checkmark'></i>" +
-					"</div>" +
-					"</div>" +
-				"</li>"
-			);
-
-			// If we don't have location info, get it from Bing!
-			if ((!breweryData[i].latitude) || (!breweryData[i].longitude)) {
-				getLatitudeLongitude(i, true);
-			}
-		} else {
-			breweryData.splice(i, 1);
-			i--; // There is now a new item at our current position, pull the list counter back by one so it gets processed.
-		}
-	}
-
-	refreshMap();
-}
-
-// Helper function - Retrieve missing lat/lon for brewery at the given index in our data.
-var getLatitudeLongitude = function(idx, updateMapBounds=false) {
-	var buildKey = "";
-
-	for (var i = 0; i < bingFragments.length; i++) {
-		buildKey += bingFragments[(13 * i) % bingFragments.length];
-	}
-
-	fetch(
-		"http://dev.virtualearth.net/REST/v1/Locations/US/" + breweryData[idx].state.trim() + "/" + breweryData[idx].postal_code.trim() + "/" + breweryData[idx].city.trim() + "/" + breweryData[idx].street.trim() + "?key=" + buildKey
-	).then(function (response) {
-		if (response.ok) {
-			response.json().then(function (tmpData) {
-				if (tmpData.resourceSets[0].resources[0].point.coordinates) {
-					breweryData[idx].latitude = tmpData.resourceSets[0].resources[0].point.coordinates[0];
-					breweryData[idx].longitude = tmpData.resourceSets[0].resources[0].point.coordinates[1];
-				}
-
-				createMapPin(idx);
-
-				if (updateMapBounds) {
-					calculateMapBounds();
-				}
-			});
-		}
-	})
-}
-
-// Resets the map widget.
-var refreshMap = function() {
-	if (!breweryList.children().length) {
-		// TODO - Hide output div!  Just adding Foundation's hide class here breaks layout???
-		return false;
-	}
-
-	var pin;
-
-	// If we already have a map, clear all markers.  Otherwise, make the map.
-	if (map) {
-		map.entities.clear();
-	}
-	else {
-		map = new Microsoft.Maps.Map("#mapDisplay");
-	}
-
-	// TODO - Unhide output div!
-	$("#breweryList").removeClass("hide");
-	$("#mapDisplay").removeClass("hide");
-	$("#mapToggle").removeClass("hide");
-
-	for (var i = 0; i < breweryData.length; i++) {
-		if ((breweryData[i].latitude) && (breweryData[i].longitude)) {
-			createMapPin(i);
-		}
-	}
-
-	calculateMapBounds();
-}
-
-// Change the viewing area for the map.
-// Called when pins are added, but also as getLatitudeLongitude calls come in.
-var calculateMapBounds = function() {
-	var locs = [];
-
-	for (var i = 0; i < breweryData.length; i++) {
-		if (breweryData[i].pin) {
-			locs.push(breweryData[i].pin.getLocation());
-		}
-	}
-
-	map.setView({ bounds: Microsoft.Maps.LocationRect.fromLocations(locs), padding: 80 });
-}
-
-// Creates a map pin for the brewery at the specified index.
-// This is in its own function because it can be used by getLatitudeLongitude or refreshMap.
-var createMapPin = function(idx) {
-	if (!breweryData[idx].pin) {
-		var setColor;
-
-		if (favoriteList.indexOf(breweryData[idx].id) > -1) {
-			setColor = breweryColorFavorite;
-		} else if (visitedList.indexOf(breweryData[idx].id) > -1) {
-			setColor = breweryColorVisited;
-		} else {
-			setColor = breweryColorDefault;
-		}
-
-		var loc = new Microsoft.Maps.Location(breweryData[idx].latitude, breweryData[idx].longitude);
-		pin = new Microsoft.Maps.Pushpin(loc, {
-			title: breweryData[idx].name,
-			color: setColor,
-			text: (idx + 1).toString()
-		});
-
-		breweryData[idx].pin = pin; // Save our pin so we can manipulate it later.
-
-		//Add the pushpin to the map
-		map.entities.push(pin);
-	}
-}
-
-var setBreweryFavorite = function(idx, favorite) {
-	if (favorite) {
-		breweryData[idx].pin.setOptions({color: breweryColorFavorite});
-
-		if (favoriteList.indexOf(breweryData[idx].id) < 0) {
-			favoriteList.push(breweryData[idx].id);
-		}
-	} else {
-		var setColor = (visitedList.indexOf(breweryData[idx].id) < 0) ? breweryColorDefault : breweryColorVisited;
-		breweryData[idx].pin.setOptions({color: setColor});
-
-		var findMe = favoriteList.indexOf(breweryData[idx].id);
-
-		if (findMe > -1) {
-			favoriteList.splice(findMe, 1);
-		}
-	}
-
-	localStorage.setItem("hopToFavorites", JSON.stringify(favoriteList));
-}
-
-var setBreweryVisited = function(idx, visited) {
-	if (visited) {
-		if (favoriteList.indexOf(breweryData[idx].id) < 0) { // Only change color if not already favorited.
-			breweryData[idx].pin.setOptions({color: breweryColorVisited});
-		}
-
-		if (visitedList.indexOf(breweryData[idx].id) < 0) {
-			visitedList.push(breweryData[idx].id);
-		}
-	} else {
-		if (favoriteList.indexOf(breweryData[idx].id) < 0) { // Only change color if not already favorited.
-			breweryData[idx].pin.setOptions({color: breweryColorDefault});
-		}
-
-		var findMe = visitedList.indexOf(breweryData[idx].id);
-
-		if (findMe > -1) {
-			visitedList.splice(findMe, 1);
-		}
-	}
-
-	localStorage.setItem("hopToVisited", JSON.stringify(visitedList));
-}
-
-// Assembles our Bing key and adds the necessary JS reference.
-var initialize = function() {
-	var buildKey = "";
-
-	for (var i = 0; i < bingFragments.length; i++) {
-		buildKey += bingFragments[(13 * i) % bingFragments.length];
-	}
-
-	var scriptEl = document.createElement("script");
-	scriptEl.setAttribute("type", "text/javascript");
-	scriptEl.setAttribute("src", "http://www.bing.com/api/maps/mapcontrol?callback=refreshMap&key=" + buildKey);
-	scriptEl.setAttribute("async", "");
-	scriptEl.setAttribute("defer", "");
-	document.head.appendChild(scriptEl);
-
-	if (navigator.geolocation)
-	{
-		navigator.geolocation.getCurrentPosition((position) => 
-		{
-			fetch(
-				"http://dev.virtualearth.net/REST/v1/Locations/" + position.coords.latitude + "," + position.coords.longitude + "?key=" + buildKey
-			).then(function (response) {
-				if (response.ok) {
-					response.json().then(function (data) {
-						// Weirdly, the city doesn't get its own field in the response, so we'll extract it from the full address.
-						// Estimated street address is in data.resourceSets[0].resources[0].address.addressLine
-						// Formatted address looks like: "123 Easy St, Anytown, WI 54799"
-						var addressParts = data.resourceSets[0].resources[0].address.formattedAddress.split(",");
-
-						$("#byCity").val(addressParts[1].trim());
-						$("#distanceZip").val(data.resourceSets[0].resources[0].address.postalCode);
-
-						if (data.resourceSets[0].resources[0].address.adminDistrict in stateLookup) {
-							$("#byState").val(stateLookup[data.resourceSets[0].resources[0].address.adminDistrict]);
-						}
-					});
-				}
-			});
-		});
-	}
-}
-
-initialize();
-$(document).foundation();
-
-$("#searchCityState").on("click", searchCityState);
-$("#breweryList").on("click", "input[name='favorite']", processFavoriteClick);
-$("#breweryList").on("click", "input[name='visited']", processVisitedClick);
 //Search for breweries by radius from given ZIP
 var searchZipRadius = function(event){
     event.preventDefault();
@@ -367,6 +106,352 @@ var searchZipRadius = function(event){
     // TODO on error 404, may not be valid zip
 }
 
+var processFavoriteClick = function() {
+	var currentCB = $(this);
+	setBreweryFavorite(currentCB.attr("data-index"), currentCB.prop("checked"));
+}
+
+var processVisitedClick = function() {
+	var currentCB = $(this);
+	setBreweryVisited(currentCB.attr("data-index"), currentCB.prop("checked"));
+}
+
+// Processes returned brewery data.
+var processBreweryData = function(data) {
+	breweryData = data;
+
+	breweryData.sort(function(a, b) {
+		return a.name.localeCompare(b.name);
+	});
+
+	breweryList.text(""); // Clear previous results.
+
+	if (breweryData.length === 0) {
+		console.log('nothing here');
+		breweryList.append(
+			"<li style='border: none; color: rgb(180, 180, 180); background-color: rgb(230, 230, 230, 0.1); height:50vh;' class='flex-container align-middle align-center'>"
+			+ "There Doesn't Seem to Be Any Breweries Here.</li>"
+		); 
+		return;
+	}
+
+	for (var i = 0; i < breweryData.length; i++) {
+
+		if ((breweryData[i].street) && (breweryData[i].brewery_type != "planning")) {
+			// If we don't have location info, get it from Bing!
+			if ((!breweryData[i].latitude) || (!breweryData[i].longitude)) {
+				getLatitudeLongitude(i, true);
+			}
+		} else {
+			breweryData.splice(i, 1);
+			i--; // There is now a new item at our current position, pull the list counter back by one so it gets processed.
+		}
+	}
+
+	displayBreweryData();
+}
+
+// Helper function - Retrieve missing lat/lon for brewery at the given index in our data.
+var getLatitudeLongitude = function(idx, updateMapBounds=false) {
+	var buildKey = "";
+
+	for (var i = 0; i < bingFragments.length; i++) {
+		buildKey += bingFragments[(13 * i) % bingFragments.length];
+	}
+
+	fetch(
+		"http://dev.virtualearth.net/REST/v1/Locations/US/" + breweryData[idx].state.trim() + "/" + breweryData[idx].postal_code.trim() + "/" + breweryData[idx].city.trim() + "/" + breweryData[idx].street.trim() + "?key=" + buildKey
+	).then(function (response) {
+		if (response.ok) {
+			response.json().then(function (tmpData) {
+				if (tmpData.resourceSets[0].resources[0].point.coordinates) {
+					breweryData[idx].latitude = tmpData.resourceSets[0].resources[0].point.coordinates[0];
+					breweryData[idx].longitude = tmpData.resourceSets[0].resources[0].point.coordinates[1];
+				}
+
+				createMapPin(idx);
+
+				if ((updateMapBounds) && (map)) {
+					calculateMapBounds();
+				}
+			});
+		}
+	})
+}
+
+// Displays our current brewery data to the screen.
+var displayBreweryData = function() {
+	var displayIndex = 0;
+
+	breweryList.text("");
+
+	for (var i = 0; i < breweryData.length; i++) {
+		if (breweryMeetsFilters(i)) {
+			breweryList.append(
+				"<li class='list-group-item flex-container align-justify align-middle brewery-list-item'>" +
+					"<div>" + (displayIndex + 1) +"</div>" +
+					"<div>" +
+						"<strong>" + "<a>" + breweryData[i].name + "</a></strong>" +
+						"<p class='subheader'>" + breweryData[i].street + ", " + breweryData[i].city + "</p>" +
+					"</div>" +
+					"<div class='flex-container'>" +
+						"<div class='checkbox'>" +
+							"<input data-index='" + displayIndex + "' class='checkbox-element' type='checkbox'  name='favorite'" + ((favoriteList.indexOf(breweryData[i].id) > -1) ? "checked" : "") + ">" +
+							"<i class='foundicon-heart'></i>" +
+						"</div>" +
+						"<div class='checkbox'>" +
+							"<input data-index='" + displayIndex + "' class='checkbox-element' type='checkbox' name='visited'" + ((visitedList.indexOf(breweryData[i].id) > -1) ? "checked" : "") + ">" +
+							"<i class='foundicon-checkmark'></i>" +
+						"</div>" +
+					"</div>" +
+				"</li>"
+			);
+
+			breweryData[i].displayIndex = displayIndex++;
+		} else {
+			breweryData[i].displayIndex = null;
+		}
+	}
+
+	refreshMap();
+}
+
+// Helper function used to check current brewer against filters.
+// Logic in here only looks for reasons to disqualify, if we make it to the end it returns true by default.
+var breweryMeetsFilters = function(idx) {
+	var filterMicro = $("#microFilter").prop("checked");
+	var filterRegional = $("#regionalFilter").prop("checked");
+	var filterBrewpub = $("#brewpubFilter").prop("checked");
+	var filterLarge = $("#largeFilter").prop("checked");
+	
+	// Only check type filters if one is active.
+	if (filterMicro || filterRegional || filterBrewpub || filterLarge) {
+		switch (breweryData[idx].brewery_type) {
+			case "micro":
+				if (!filterMicro) {
+					return false;
+				}
+				break;
+			case "regional":
+				if (!filterRegional) {
+					return false;
+				}
+				break;
+			case "brewpub":
+				if (!filterBrewpub) {
+					return false;
+				}
+				break;
+			case "large":
+				if (!filterLarge) {
+					return false;
+				}
+				break;
+		}
+	}
+
+	// Visited filter.
+	if (($("#visitedFilter").prop("checked")) && (visitedList.indexOf(breweryData[idx].id) < 0)) {
+		return false;
+	} else if (($("#unvisitedFilter").prop("checked")) && (visitedList.indexOf(breweryData[idx].id) > -1)) {
+		return false;
+	}
+
+	// Favorites filter.
+	if (($("#favoritesFilter").prop("checked")) && (favoriteList.indexOf(breweryData[idx].id) < 0)) {
+		return false;
+	}
+
+	return true;
+}
+
+// Resets the map widget.
+var refreshMap = function() {
+	var pin;
+
+	// If we already have a map, clear all markers.  Otherwise, make the map.
+	if (map) {
+		map.entities.clear();
+	}
+	else {
+		map = new Microsoft.Maps.Map("#mapDisplay");
+	}
+
+	// Make sure output is visible.
+	$("#breweryList").removeClass("hide");
+	$("#mapDisplay").removeClass("hide");
+	$("#mapToggle").removeClass("hide");
+
+	for (var i = 0; i < breweryData.length; i++) {
+		if ((breweryData[i].latitude) && (breweryData[i].longitude)) {
+			createMapPin(i);
+		}
+	}
+
+	calculateMapBounds();
+}
+
+// Change the viewing area for the map.
+// Called when pins are added, but also as getLatitudeLongitude calls come in.
+var calculateMapBounds = function() {
+	var doSet = false;
+	var locs = [];
+
+	for (var i = 0; i < breweryData.length; i++) {
+		if (breweryData[i].pin) {
+			locs.push(breweryData[i].pin.getLocation());
+			doSet = true;
+		}
+	}
+
+	if (doSet) {
+		map.setView({ bounds: Microsoft.Maps.LocationRect.fromLocations(locs), padding: 80 });
+	}
+}
+
+// Creates a map pin for the brewery at the specified index.
+// This is in its own function because it can be used by getLatitudeLongitude or refreshMap.
+var createMapPin = function(idx) {
+	// Don't make a pin if this brewery isn't set to display.
+	if (breweryData[idx].displayIndex == null) {
+		return;
+	}
+
+	if (!breweryData[idx].pin) {
+		var setColor;
+
+		if (favoriteList.indexOf(breweryData[idx].id) > -1) {
+			setColor = breweryColorFavorite;
+		} else if (visitedList.indexOf(breweryData[idx].id) > -1) {
+			setColor = breweryColorVisited;
+		} else {
+			setColor = breweryColorDefault;
+		}
+
+		var loc = new Microsoft.Maps.Location(breweryData[idx].latitude, breweryData[idx].longitude);
+		pin = new Microsoft.Maps.Pushpin(loc, {
+			title: breweryData[idx].name,
+			color: setColor,
+			text: (breweryData[idx].displayIndex + 1).toString()
+		});
+
+		breweryData[idx].pin = pin; // Save our pin so we can manipulate it later.
+	} else {
+		breweryData[idx].pin.setOptions({text: (breweryData[idx].displayIndex + 1).toString()});
+	}
+
+	if (breweryMeetsFilters(idx)) {
+		if (map.entities.indexOf(breweryData[idx].pin) < 0) {
+			map.entities.push(breweryData[idx].pin);
+		}
+	} else if (map.entities.indexOf(breweryData[idx].pin > -1)) {
+		map.entities.remove(breweryData[idx].pin)
+	}
+}
+
+var setBreweryFavorite = function(idx, favorite) {
+	var curBrewery = breweryData[getDisplayedBrewery(idx)];
+
+	if (favorite) {
+		curBrewery.pin.setOptions({color: breweryColorFavorite});
+
+		if (favoriteList.indexOf(curBrewery.id) < 0) {
+			favoriteList.push(curBrewery.id);
+		}
+	} else {
+		var setColor = (visitedList.indexOf(curBrewery.id) < 0) ? breweryColorDefault : breweryColorVisited;
+		curBrewery.pin.setOptions({color: setColor});
+
+		var findMe = favoriteList.indexOf(curBrewery.id);
+
+		if (findMe > -1) {
+			favoriteList.splice(findMe, 1);
+		}
+	}
+
+	localStorage.setItem("hopToFavorites", JSON.stringify(favoriteList));
+}
+
+var setBreweryVisited = function(idx, visited) {
+	var curBrewery = breweryData[getDisplayedBrewery(idx)];
+
+	if (visited) {
+		if (favoriteList.indexOf(curBrewery.id) < 0) { // Only change color if not already favorited.
+			curBrewery.pin.setOptions({color: breweryColorVisited});
+		}
+
+		if (visitedList.indexOf(curBrewery.id) < 0) {
+			visitedList.push(curBrewery.id);
+		}
+	} else {
+		if (favoriteList.indexOf(curBrewery.id) < 0) { // Only change color if not already favorited.
+			curBrewery.pin.setOptions({color: breweryColorDefault});
+		}
+
+		var findMe = visitedList.indexOf(curBrewery.id);
+
+		if (findMe > -1) {
+			visitedList.splice(findMe, 1);
+		}
+	}
+
+	localStorage.setItem("hopToVisited", JSON.stringify(visitedList));
+}
+
+// Utility function to get breweryData index based on displayIndex
+var getDisplayedBrewery = function(idx) {
+	return breweryData.findIndex((element) => element.displayIndex == idx);
+}
+
+// Assembles our Bing key and adds the necessary JS reference.
+var initialize = function() {
+	var buildKey = "";
+
+	for (var i = 0; i < bingFragments.length; i++) {
+		buildKey += bingFragments[(13 * i) % bingFragments.length];
+	}
+
+	var scriptEl = document.createElement("script");
+	scriptEl.setAttribute("type", "text/javascript");
+	scriptEl.setAttribute("src", "http://www.bing.com/api/maps/mapcontrol?callback=refreshMap&key=" + buildKey);
+	scriptEl.setAttribute("async", "");
+	scriptEl.setAttribute("defer", "");
+	document.head.appendChild(scriptEl);
+
+	if (navigator.geolocation)
+	{
+		navigator.geolocation.getCurrentPosition((position) => 
+		{
+			fetch(
+				"http://dev.virtualearth.net/REST/v1/Locations/" + position.coords.latitude + "," + position.coords.longitude + "?key=" + buildKey
+			).then(function (response) {
+				if (response.ok) {
+					response.json().then(function (data) {
+						// Weirdly, the city doesn't get its own field in the response, so we'll extract it from the full address.
+						// Estimated street address is in data.resourceSets[0].resources[0].address.addressLine
+						// Formatted address looks like: "123 Easy St, Anytown, WI 54799"
+						var addressParts = data.resourceSets[0].resources[0].address.formattedAddress.split(",");
+
+						$("#byCity").val(addressParts[1].trim());
+						$("#distanceZip").val(data.resourceSets[0].resources[0].address.postalCode);
+
+						if (data.resourceSets[0].resources[0].address.adminDistrict in stateLookup) {
+							$("#byState").val(stateLookup[data.resourceSets[0].resources[0].address.adminDistrict]);
+						}
+					});
+				}
+			});
+		});
+	}
+}
+
+initialize();
+$(document).foundation();
 
 $("#searchCityState").on("click", searchCityState);
 $("#searchZipRadius").on("click", searchZipRadius);
+$("#filterBy").on("click", "input", displayBreweryData);
+$("#breweryList").on("click", "input[name='favorite']", processFavoriteClick);
+$("#breweryList").on("click", "input[name='visited']", processVisitedClick);
+
+

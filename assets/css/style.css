@@ -65,6 +65,15 @@ ol {
   color:rgb(0, 0, 0);
 }
 
+.brewery-list-item > div:first-child {
+  font-size: larger;
+}
+
+.brewery-list-item > div:nth-child(2) {
+  margin-left: 8px;
+  width: 100%;
+}
+
 .brewery-list-item p {
   font-size: smaller;
 }
