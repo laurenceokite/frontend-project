@@ -298,3 +298,64 @@ $(document).foundation();
 $("#searchCityState").on("click", searchCityState);
 $("#breweryList").on("click", "input[name='favorite']", processFavoriteClick);
 $("#breweryList").on("click", "input[name='visited']", processVisitedClick);
+//Search for breweries by radius from given ZIP
+var searchZipRadius = function(event){
+    event.preventDefault();
+    var buildKeyZIP = "";
+    var buildKeyMaps = "";
+    var radius = $("#distanceOption").val();
+    for (var i = 0; i < zipFragments.length; i++) {
+        buildKeyZIP += zipFragments[(13 * i) % zipFragments.length];
+    }
+    for (var i = 0; i < bingFragments.length; i++) {
+        buildKeyMaps += bingFragments[(13 * i) % bingFragments.length];
+    }
+    var chosenZIP = $("#distanceZip").val();
+    //api url... ASSEMBLE!!!!
+    var zipSearchURL = "https://www.zipcodeapi.com/rest/" + buildKeyZIP + "/radius.json/" 
+        + chosenZIP.toString() + "/" + radius.toString() + "/mile"
+    //console.log(radius, zipSearchURL);
+    // https://www.zipcodeapi.com/rest/<api_key>/radius.<format>/<zip_code>/<distance>/<units>
+
+    fetch(zipSearchURL, { mode: 'cors' }).then(function (response) {
+        console.dir(response);
+        if (response.ok) {
+            response.json().then(function(data){
+    // TODO remove the following line. This was used to fudge the API fetch in pre-production env.
+                //console.dir(data);
+                var numCitiesNearby = data.zip_codes.length;
+                var openBreweryDBAPIFetchURLs = [];
+                // source of following inline function to sort by distance https://stackoverflow.com/a/1129270
+                data.zip_codes.sort((a, b) => (a.distance > b.distance) ? 1 : ((b.distance > a.distance) ? -1 : 0));
+                for(var i = 0; i < numCitiesNearby; i++){
+                    openBreweryDBAPIFetchURLs.push("https://api.openbrewerydb.org/breweries?by_postal=" + data.zip_codes[i].zip_code);
+                }
+
+                //promise.all example borrowed from https://gomakethings.com/waiting-for-multiple-all-api-responses-to-complete-with-the-vanilla-js-promise.all-method/
+                Promise.all(openBreweryDBAPIFetchURLs.map(x=>fetch(x))).then(function (responses) {
+                    // Get a JSON object from each of the responses
+                    return Promise.all(responses.map(function (response) {
+                        return response.json();
+                    }));
+                }).then(function (data) {
+                    var breweryList = [];
+                    for (var i = 0; i < numCitiesNearby; i++){
+                        if(data[i].length > 0 ){
+                            data[i].forEach(value => breweryList.push(value));
+                        }
+                    }
+                    console.log(breweryList)
+                }).catch(function (error) {
+                    // if there's an error, log it
+                    console.log(error);
+                });
+                        })
+                    }
+
+                })
+    // TODO on error 404, may not be valid zip
+}
+
+
+$("#searchCityState").on("click", searchCityState);
+$("#searchZipRadius").on("click", searchZipRadius);
