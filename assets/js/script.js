@@ -4,9 +4,10 @@ const zipFragments = [ "5fMZ", "uis6", "biA4", "ZNwR", "9h1q", "ZKEC", "nEdI", "
 
 const stateLookup = { AL: "Alabama", AK: "Alaska", AS: "American Samoa", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado", CT: "Connecticut", DE: "Delaware", DC: "District of Columbia", FL: "Florida", GA: "Georgia", GU: "Guam", HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey", NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", MP: "North Mariana Is", OH: "Ohio", OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", PR: "Puerto Rico", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", VI: "Virgin Islands", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming"};
 
-const breweryColorDefault = "#208020";
-const breweryColorFavorite = "#4080ff";
-const breweryColorVisited = "#608060";
+const breweryIconDefault = "./assets/images/pin.png";
+const breweryIconFavorite = "./assets/images/favorite.png";
+const breweryIconVisited = "./assets/images/visited.png";
+const breweryIconRoute = "./assets/images/star.png"
 
 var breweryList = $("#breweryList");
 var favoriteList = JSON.parse(localStorage.getItem("hopToFavorites")) || [];
@@ -318,21 +319,21 @@ var createMapPin = function(idx) {
 	}
 
 	if (!breweryData[idx].pin) {
-		var setColor;
+		var icon;
 
 		if (favoriteList.indexOf(breweryData[idx].id) > -1) {
-			setColor = breweryColorFavorite;
+			icon = breweryIconFavorite;
 		} else if (visitedList.indexOf(breweryData[idx].id) > -1) {
-			setColor = breweryColorVisited;
+			icon = breweryIconVisited;
 		} else {
-			setColor = breweryColorDefault;
+			icon = breweryIconDefault;
 		}
 
 		var loc = new Microsoft.Maps.Location(breweryData[idx].latitude, breweryData[idx].longitude);
 		pin = new Microsoft.Maps.Pushpin(loc, {
 			title: breweryData[idx].name,
-			color: setColor,
-			text: (breweryData[idx].displayIndex + 1).toString()
+			text: (breweryData[idx].displayIndex + 1).toString(),
+			icon: icon
 		});
 
 		breweryData[idx].pin = pin; // Save our pin so we can manipulate it later.
@@ -353,14 +354,14 @@ var setBreweryFavorite = function(idx, favorite) {
 	var curBrewery = breweryData[getDisplayedBrewery(idx)];
 
 	if (favorite) {
-		curBrewery.pin.setOptions({color: breweryColorFavorite});
+		curBrewery.pin.setOptions({icon: breweryIconFavorite});
 
 		if (favoriteList.indexOf(curBrewery.id) < 0) {
 			favoriteList.push(curBrewery.id);
 		}
 	} else {
-		var setColor = (visitedList.indexOf(curBrewery.id) < 0) ? breweryColorDefault : breweryColorVisited;
-		curBrewery.pin.setOptions({color: setColor});
+		var icon = (visitedList.indexOf(curBrewery.id) < 0) ? breweryIconDefault : breweryIconVisited;
+		curBrewery.pin.setOptions({icon: icon});
 
 		var findMe = favoriteList.indexOf(curBrewery.id);
 
@@ -377,7 +378,7 @@ var setBreweryVisited = function(idx, visited) {
 
 	if (visited) {
 		if (favoriteList.indexOf(curBrewery.id) < 0) { // Only change color if not already favorited.
-			curBrewery.pin.setOptions({color: breweryColorVisited});
+			curBrewery.pin.setOptions({icon: breweryIconVisited});
 		}
 
 		if (visitedList.indexOf(curBrewery.id) < 0) {
@@ -385,7 +386,7 @@ var setBreweryVisited = function(idx, visited) {
 		}
 	} else {
 		if (favoriteList.indexOf(curBrewery.id) < 0) { // Only change color if not already favorited.
-			curBrewery.pin.setOptions({color: breweryColorDefault});
+			curBrewery.pin.setOptions({icon: breweryIconDefault});
 		}
 
 		var findMe = visitedList.indexOf(curBrewery.id);
