@@ -6,6 +6,16 @@
   --dark-grey: rgb(160,160,160);
 }
 
+.callout p {
+  margin: 0;
+  margin-left: .5rem;
+}
+
+.close-button {
+  position: static;
+  margin-bottom: .3rem !important;
+}
+
 
 .button.submit, .button.submit:focus {
   margin: 1rem 0;
@@ -117,9 +127,13 @@ ol {
 .checkbox>input[type='checkbox']+i{
     color:rgba(0,0,0,0.2);
 }
+
+.checkbox>input[name='favorite']:checked+i{
+  color: #c04040;
+}
   
-.checkbox>input[type='checkbox']:checked+i{
-  color:rgb(0, 0, 0);
+.checkbox>input[name='visited']:checked+i{
+  color: #386088;
 }
 
 .brewery-list-item > div:first-child {
