@@ -15,6 +15,7 @@ var visitedList = JSON.parse(localStorage.getItem("hopToVisited")) || [];
 var map // Microsoft map object.
 var breweryData = [];
 
+
 // Handler for the Search button
 var searchCityState = function(event) {
 	event.preventDefault();
@@ -453,5 +454,4 @@ $("#searchZipRadius").on("click", searchZipRadius);
 $("#filterBy").on("click", "input", displayBreweryData);
 $("#breweryList").on("click", "input[name='favorite']", processFavoriteClick);
 $("#breweryList").on("click", "input[name='visited']", processVisitedClick);
-
 

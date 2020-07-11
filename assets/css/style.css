@@ -1,5 +1,62 @@
-.button {
+:root {
+  --hop-green: #a6cc87;
+  --dark-green: #91b376;
+  --light-grey: rgb(240, 240, 240);
+  --grey: rgb(200,200,200);
+  --dark-grey: rgb(160,160,160);
+}
+
+
+.button.submit, .button.submit:focus {
   margin: 1rem 0;
+  background-color: var(--dark-grey) !important;
+  font-weight: bold;
+  border-radius: 3px;
+  outline: none;
+}
+
+.button.submit:hover {
+  background-color: var(--grey) !important;
+  border: none !important;
+}
+
+a {
+  color: black;
+}
+
+footer {
+  background-color: var(--dark-green) !important;
+  color: white;
+}
+
+.accordion-content {
+  background-color: var(--light-grey);
+  box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.4);
+  border: none;     
+}
+
+
+.accordion-title, .accordion-title:active, .accordion-title:focus {
+  background-color: var(--dark-green) !important;
+  border: none;
+  font-weight: bold;
+}
+
+.accordion-title:hover {
+  background-color: var(--hop-green) !important;
+}
+
+.accordion-item a {
+  color: white;
+}
+
+.fieldset {
+  background-color: rgb(250, 250, 250);
+  box-shadow:  0 0 10px 1px rgb(225,225,225);
+}
+
+#zip-input {
+  background-color: white;
 }
 
 .pin-button {
