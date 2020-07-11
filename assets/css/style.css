@@ -60,9 +60,13 @@ ol {
 .checkbox>input[type='checkbox']+i{
     color:rgba(0,0,0,0.2);
 }
+
+.checkbox>input[name='favorite']:checked+i{
+  color: #c04040;
+}
   
-.checkbox>input[type='checkbox']:checked+i{
-  color:rgb(0, 0, 0);
+.checkbox>input[name='visited']:checked+i{
+  color: #506080;
 }
 
 .brewery-list-item > div:first-child {
