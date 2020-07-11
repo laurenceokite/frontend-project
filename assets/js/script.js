@@ -106,7 +106,7 @@ var searchZipRadius = function(event){
                     console.log(error);
                 });
                         })
-                    }
+					}  
 
                 })
     // TODO on error 404, may not be valid zip
