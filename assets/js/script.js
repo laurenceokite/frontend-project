@@ -15,6 +15,7 @@ var visitedList = JSON.parse(localStorage.getItem("hopToVisited")) || [];
 var map // Microsoft map object.
 var breweryData = [];
 
+
 // Handler for the Search button
 var searchCityState = function(event) {
 	event.preventDefault();
@@ -70,7 +71,6 @@ var processBreweryData = function(data) {
 
 	breweryList.text(""); // Clear previous results.
 
-	console.log(breweryData.length);
 	if (breweryData.length === 0) {
 		console.log('nothing here');
 		breweryList.append(
@@ -366,7 +366,6 @@ var searchZipRadius = function(event){
                 })
     // TODO on error 404, may not be valid zip
 }
-
 
 $("#searchCityState").on("click", searchCityState);
 $("#searchZipRadius").on("click", searchZipRadius);
