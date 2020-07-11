@@ -184,6 +184,11 @@ var getLatitudeLongitude = function(idx, updateMapBounds=false) {
 var displayBreweryData = function() {
 	var displayIndex = 0;
 
+	if (breweryData.length === 0) { //Keeping map from displaying before valid search
+		
+		return;
+	} 
+
 	breweryList.text("");
 
 	for (var i = 0; i < breweryData.length; i++) {
