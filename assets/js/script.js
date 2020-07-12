@@ -44,7 +44,33 @@ var searchCityState = function(event) {
 
 		if (response.ok) {
 			// TODO - How to deal with paginated results?  I'd like to combine them into a single large list.
-			response.json().then(processBreweryData);
+			response.json().then(function (data) {
+                console.dir(data)
+                var breweryList = [];
+ 
+                var getResults = function (pageIndex) {
+                    fetch(fetchUrl + "per_page=50&page=" + pageIndex).then(function (response) {
+
+                        if (response.ok) {
+                            // TODO - How to deal with paginated results?  I'd like to combine them into a single large list.
+                            response.json().then(function (data) {
+                                breweryList.push.apply(breweryList, data);
+                                
+                                if (data.length === 50) { 
+                                    getResults(++pageIndex) 
+                                }
+                            })
+                        }
+                    })
+                }
+                getResults(1);
+                console.log(breweryList);
+                
+                
+                
+                processBreweryData(breweryList)
+            
+            });
 		}
 		else {
 			breweryData = []; // Clear old data.
@@ -102,7 +128,6 @@ var searchZipRadius = function(event){
                     }
                     console.log(breweryList)
                     //Send the breweryList to processBreweryData
-                    debugger;
                     processBreweryData(breweryList);
                 }).catch(function (error) {
                     // if there's an error, log it
