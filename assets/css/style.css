@@ -177,11 +177,12 @@ input:checked~.switch-paddle {
 }
 
 .brewery-list-item > div:first-child {
+  cursor: default;
   font-size: larger;
 }
 
 .brewery-list-item > div:nth-child(2) {
-  margin-left: 8px;
+  padding-left: 8px;
   width: 100%;
 }
 
@@ -235,6 +236,14 @@ input:checked~.switch-paddle {
     color: #8a8a8a;
     cursor: not-allowed;
     background-color: #fefefe;
+  }
+
+  .tourSelection {
+    background-color: #fff4c0;
+  }
+  
+  #breweryList .tourSelection:hover {
+    background-color: #ffe8a0 !important;
   }
 
   /* font-face */
