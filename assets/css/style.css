@@ -6,6 +6,11 @@
   --dark-grey: rgb(160,160,160);
 }
 
+header img {
+  width: 20vh;
+  height: auto;
+  text-shadow: 2px black;
+}
 
 #list-number {
   font-weight: bolder;
@@ -40,10 +45,6 @@
 
 #breweryList .list-group-item:hover {
   background-color: var(--light-grey) !important;
-}
-
-header .menu img {
-  height: 40px;
 }
 
 footer {
