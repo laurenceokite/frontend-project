@@ -51,6 +51,18 @@ footer {
   color: white;
 }
 
+.attribution {
+  align-self: stretch;
+  position: relative;
+}
+
+.attribution p {
+  bottom: 0;
+  font-size: x-small;
+  margin: 0;
+  position: absolute;
+}
+
 .accordion-content {
   background-color: var(--light-grey);
   box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.4);
