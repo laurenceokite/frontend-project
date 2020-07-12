@@ -6,9 +6,17 @@
   --dark-grey: rgb(160,160,160);
 }
 
+
+#list-number {
+  font-weight: bolder;
+  width: 2rem;
+  color: var(--dark-green);
+}
+
 .callout p {
   margin: 0;
   margin-left: .5rem;
+  color: rgb(130,130,130);
 }
 
 .close-button {
@@ -30,8 +38,8 @@
   border: none !important;
 }
 
-a {
-  color: black;
+#breweryList .list-group-item:hover {
+  background-color: var(--light-grey) !important;
 }
 
 footer {
@@ -105,6 +113,10 @@ ol {
   box-shadow: none;
   background-color: rgba(255,255,255,.0);
   margin: 0 !important;
+}
+
+a {
+  color: black;
 }
 
 
