@@ -13,6 +13,7 @@ var startingAddress = "";
 var startingCity = "";
 var startingZip = "";
 
+var tourMode = false;
 var breweryList = $("#breweryList");
 var favoriteList = JSON.parse(localStorage.getItem("hopToFavorites")) || [];
 var visitedList = JSON.parse(localStorage.getItem("hopToVisited")) || [];
@@ -131,20 +132,23 @@ var searchZipRadius = function(event){
 var processFavoriteClick = function(event) {
 	var currentCB = $(this);
 	event.stopPropagation();
-	setBreweryFavorite(currentCB.attr("data-index"), currentCB.prop("checked"));
+	setBreweryFavorite(currentCB.closest("li").attr("data-index"), currentCB.prop("checked"));
 }
 
 var processVisitedClick = function(event) {
 	var currentCB = $(this);
 	event.stopPropagation();
-	setBreweryVisited(currentCB.attr("data-index"), currentCB.prop("checked"));
+	setBreweryVisited(currentCB.closest("li").attr("data-index"), currentCB.prop("checked"));
 }
 
 var processAddToTourClick = function() {
 	var currentItem = $(this);
-	console.log(currentItem.closest("li"));
 
 	toggleBreweryForTour(currentItem.closest("li").attr("data-index"));
+}
+
+var processMapToggle = function() {
+	changeTourMode(!tourMode);
 }
 
 // Processes returned brewery data.
@@ -235,7 +239,7 @@ var displayBreweryData = function() {
 	for (i = 0; i < breweryData.length; i++) {
 		if (tourList.find(testBrewery => testBrewery.id == breweryData[i].id)) {
 			continue; // Skip breweries we've already covered with tourList.
-		} else  if (breweryMeetsFilters(breweryData[i])) {
+		} else  if ((breweryMeetsFilters(breweryData[i])) && (!tourMode)) {
 			addBreweryToList(breweryData[i], displayIndex);
 			breweryData[i].displayIndex = displayIndex++;
 		} else {
@@ -301,16 +305,16 @@ var addBreweryToList = function(curBrewery, displayIndex) {
 		"<li class='list-group-item flex-container align-justify align-middle brewery-list-item" + ((isBreweryInTourList(curBrewery)) ? "  tourSelection" : "") + " 'data-index='" + displayIndex + "'>" +
 			"<div id='list-number' class='align-self-stretch'>" + (displayIndex + 1) +"</div>" +
 			"<div>" +
-				"<strong>" + "<a>" + curBrewery.name + "</a></strong>" +
+				"<strong>" + curBrewery.name + "</strong>" +
 				"<p class='subheader'>" + curBrewery.street + ", " + curBrewery.city + "</p>" +
 			"</div>" +
 			"<div class='flex-container'>" +
 				"<div class='checkbox'>" +
-					"<input data-index='" + displayIndex + "' class='checkbox-element' type='checkbox'  name='favorite'" + ((favoriteList.indexOf(curBrewery.id) > -1) ? "checked" : "") + ">" +
+					"<input class='checkbox-element' type='checkbox'  name='favorite'" + ((favoriteList.indexOf(curBrewery.id) > -1) ? "checked" : "") + ">" +
 					"<i class='foundicon-heart'></i>" +
 				"</div>" +
 				"<div class='checkbox'>" +
-					"<input data-index='" + displayIndex + "' class='checkbox-element' type='checkbox' name='visited'" + ((visitedList.indexOf(curBrewery.id) > -1) ? "checked" : "") + ">" +
+					"<input class='checkbox-element' type='checkbox' name='visited'" + ((visitedList.indexOf(curBrewery.id) > -1) ? "checked" : "") + ">" +
 					"<i class='foundicon-checkmark'></i>" +
 				"</div>" +
 			"</div>" +
@@ -334,9 +338,13 @@ var refreshMap = function() {
 		createMapPin(tourList[i]);
 	}
 
-	for (i = 0; i < breweryData.length; i++) {
-		if ((breweryData[i].latitude) && (breweryData[i].longitude) && (!isBreweryInTourList(breweryData[i]))) {
-			createMapPin(breweryData[i]);
+	if (tourMode) {
+		// TODO - Create route!
+	} else {
+		for (i = 0; i < breweryData.length; i++) {
+			if ((breweryData[i].latitude) && (breweryData[i].longitude) && (!isBreweryInTourList(breweryData[i]))) {
+				createMapPin(breweryData[i]);
+			}
 		}
 	}
 
@@ -405,6 +413,19 @@ var createMapPin = function(curBrewery) {
 	} else if (map.entities.indexOf(curBrewery.pin > -1)) {
 		map.entities.remove(curBrewery.pin)
 	}
+}
+
+var changeTourMode = function(newMode) {
+	if (newMode == tourMode) {
+		return;
+	} else if ((newMode) && (!tourList.length)) {
+		return;
+	}
+
+	tourMode = newMode;
+	$("#brew-toggle-list").toggleClass("hollow", tourMode);
+	$("#brew-toggle-tour").toggleClass("hollow", !tourMode);
+	displayBreweryData();
 }
 
 var setBreweryFavorite = function(idx, favorite) {
@@ -480,6 +501,11 @@ var toggleBreweryForTour = function(idx) {
 		}
 
 		curBrewery.pin.setOptions({icon: icon});
+
+		// If no tour destinations, make sure tour mode is off.
+		if (tourList.length == 0) {
+			changeTourMode(false);
+		}
 	} else {
 		tourList.push(curBrewery);
 		breweryData.sort(function(a, b) {
@@ -532,15 +558,18 @@ var initialize = function() {
 				if (response.ok) {
 					response.json().then(function (data) {
 						// Weirdly, the city doesn't get its own field in the response, so we'll extract it from the full address.
-						// Estimated street address is in data.resourceSets[0].resources[0].address.addressLine
 						// Formatted address looks like: "123 Easy St, Anytown, WI 54799"
 						var addressParts = data.resourceSets[0].resources[0].address.formattedAddress.split(",");
 
-						$("#byCity").val(addressParts[1].trim());
+						startingAddress = data.resourceSets[0].resources[0].address.addressLine;
+						startingCity = addressParts[1].trim();
+
+						$("#byCity").val(startingCity);
 						$("#distanceZip").val(data.resourceSets[0].resources[0].address.postalCode);
 
 						if (data.resourceSets[0].resources[0].address.adminDistrict in stateLookup) {
-							$("#byState").val(stateLookup[data.resourceSets[0].resources[0].address.adminDistrict]);
+							startingState = stateLookup[data.resourceSets[0].resources[0].address.adminDistrict];
+							$("#byState").val(startingState);
 						}
 					});
 				}
@@ -558,3 +587,4 @@ $("#filterBy").on("click", "input", displayBreweryData);
 $("#breweryList").on("click", "div:not(.flex-container)", processAddToTourClick);
 $("#breweryList").on("click", "input[name='favorite']", processFavoriteClick);
 $("#breweryList").on("click", "input[name='visited']", processVisitedClick);
+$("#brew-toggle").on("click", "a.hollow", processMapToggle);

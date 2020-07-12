@@ -135,6 +135,10 @@ a {
   color: black;
 }
 
+#brew-toggle a:not(.hollow) {
+  cursor: default;
+}
+
 .switch-paddle {
   border-radius: 15px;
 }
