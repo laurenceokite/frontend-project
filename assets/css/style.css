@@ -119,6 +119,18 @@ a {
   color: black;
 }
 
+.switch-paddle {
+  border-radius: 15px;
+}
+
+.switch-paddle::after {
+  border-radius: 15px;
+}
+
+input:checked~.switch-paddle {
+  background-color: var(--dark-green);
+}
+
 
 .checkbox-element {
   position: absolute;
