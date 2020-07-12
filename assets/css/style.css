@@ -42,6 +42,10 @@
   background-color: var(--light-grey) !important;
 }
 
+header .menu img {
+  height: 40px;
+}
+
 footer {
   background-color: var(--dark-green) !important;
   color: white;
