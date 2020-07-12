@@ -205,7 +205,7 @@ var displayBreweryData = function() {
 		if (breweryMeetsFilters(i)) {
 			breweryList.append(
 				"<li class='list-group-item flex-container align-justify align-middle brewery-list-item'>" +
-					"<div>" + (displayIndex + 1) +"</div>" +
+					"<div id='list-number' class='align-self-top'>" + (displayIndex + 1) +"</div>" +
 					"<div>" +
 						"<strong>" + "<a>" + breweryData[i].name + "</a></strong>" +
 						"<p class='subheader'>" + breweryData[i].street + ", " + breweryData[i].city + "</p>" +
