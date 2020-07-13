@@ -12,13 +12,16 @@ const breweryIconTourSelect = "./assets/images/star.png"
 var startingAddress = "";
 var startingCity = "";
 var startingZip = "";
+var startingLat;
+var stratingLong;
 
 var tourMode = false;
 var breweryList = $("#breweryList");
 var favoriteList = JSON.parse(localStorage.getItem("hopToFavorites")) || [];
 var visitedList = JSON.parse(localStorage.getItem("hopToVisited")) || [];
 
-var map // Microsoft map object.
+var map; // Microsoft map object.
+var directionsManager; // Microsoft DirectionsManager object.
 var breweryData = [];
 var tourList = [];
 
@@ -334,13 +337,43 @@ var refreshMap = function() {
 		map = new Microsoft.Maps.Map("#mapDisplay");
 	}
 
-	for (i = 0; i < tourList.length; i++) {
-		createMapPin(tourList[i]);
+	if (directionsManager) {
+		directionsManager.clearAll();
 	}
 
 	if (tourMode) {
-		// TODO - Create route!
+		Microsoft.Maps.loadModule("Microsoft.Maps.Directions", function () {
+			if (!directionsManager) {
+				directionsManager = new Microsoft.Maps.Directions.DirectionsManager(map);
+			}
+			
+			directionsManager.setRequestOptions({ routeDraggable: false, routeMode: Microsoft.Maps.Directions.RouteMode.driving });
+			directionsManager.setRenderOptions({ itineraryContainer: document.querySelector("#displayInfo") });
+
+			var tourLocs = Array.from(tourList);
+
+			// If we have a starting location, add it as the first waypoint and use it to sort the tour list.
+			if ((startingLat) && (startingLon)) {
+				var loc = new Microsoft.Maps.Location(startingLat, startingLon);
+				directionsManager.addWaypoint(new Microsoft.Maps.Directions.Waypoint({ address: "You Are Here", location: loc}));
+				tourSort(startingLat, startingLon, 0, tourLocs);
+			} else { // Otherwise, the first tour list item will be used as the sorting basis.
+				tourSort(tourLocs[0].latitude, tourLocs[0].longitude, 1, tourLocs);
+				// TODO - Show a form for user to enter their address?
+			}
+
+			for (i = 0; i < tourLocs.length; i++) {
+				directionsManager.addWaypoint(new Microsoft.Maps.Directions.Waypoint({ address: tourLocs[i].name, location: tourLocs[i].pin.getLocation()}))
+			}
+
+			directionsManager.calculateDirections();
+		});
 	} else {
+		// Add all pins to the map!
+		for (i = 0; i < tourList.length; i++) {
+			createMapPin(tourList[i]);
+		}
+
 		for (i = 0; i < breweryData.length; i++) {
 			if ((breweryData[i].latitude) && (breweryData[i].longitude) && (!isBreweryInTourList(breweryData[i]))) {
 				createMapPin(breweryData[i]);
@@ -349,6 +382,39 @@ var refreshMap = function() {
 	}
 
 	calculateMapBounds();
+}
+
+// Utility function - Sorts tour list recursively, finding the closest item to the passed in lat/lon.
+var tourSort = function(lat, lon, idx, list) {
+	var closestIdx;
+	var closestDistance = 10000;
+
+	for (var i = idx; i < list.length; i++) {
+		var diff;
+		var dist;
+
+		// Calculate distance.
+		diff = list[i].latitude - lat;
+		dist = diff * diff;
+		diff = list[i].longitude - lon;
+		dist += diff * diff;
+		dist = Math.sqrt(dist);
+
+		// Hold on to current info if it's the closest.
+		if (dist < closestDistance) {
+			closestIdx = i;
+			closestDistance = dist;
+		}
+	}
+
+	// Take the closest list item and put at the 'idx' position that was passed in.
+	var pullMe = list.splice(closestIdx, 1);
+	list.splice(idx, 0, pullMe[0]);
+
+	// Continue our sort if necessary.  No need for it on last item because there's nothing to compare to.
+	if (idx < list.length - 1) {
+		tourSort(list[idx].latitude, list[idx].longitude, idx + 1, list);
+	}
 }
 
 // Change the viewing area for the map.
@@ -425,6 +491,16 @@ var changeTourMode = function(newMode) {
 	tourMode = newMode;
 	$("#brew-toggle-list").toggleClass("hollow", tourMode);
 	$("#brew-toggle-tour").toggleClass("hollow", !tourMode);
+
+	// Brewery List would have been destroyed by tour mode, make sure we restore it.
+	if (!tourMode) {
+		$("#displayInfo").text("").append("<ol id='breweryList' class='list-group'></ol>");
+		breweryList = $("#breweryList");
+		breweryList.on("click", "div:not(.flex-container)", processAddToTourClick);
+		breweryList.on("click", "input[name='favorite']", processFavoriteClick);
+		breweryList.on("click", "input[name='visited']", processVisitedClick);
+	}
+
 	displayBreweryData();
 }
 
@@ -563,9 +639,13 @@ var initialize = function() {
 
 						startingAddress = data.resourceSets[0].resources[0].address.addressLine;
 						startingCity = addressParts[1].trim();
+						startingZip = data.resourceSets[0].resources[0].address.postalCode;
+
+						startingLat = data.resourceSets[0].resources[0].point.coordinates[0];
+						startingLon = data.resourceSets[0].resources[0].point.coordinates[1];
 
 						$("#byCity").val(startingCity);
-						$("#distanceZip").val(data.resourceSets[0].resources[0].address.postalCode);
+						$("#distanceZip").val(startingZip);
 
 						if (data.resourceSets[0].resources[0].address.adminDistrict in stateLookup) {
 							startingState = stateLookup[data.resourceSets[0].resources[0].address.adminDistrict];
@@ -584,7 +664,7 @@ $(document).foundation();
 $("#searchCityState").on("click", searchCityState);
 $("#searchZipRadius").on("click", searchZipRadius);
 $("#filterBy").on("click", "input", displayBreweryData);
-$("#breweryList").on("click", "div:not(.flex-container)", processAddToTourClick);
-$("#breweryList").on("click", "input[name='favorite']", processFavoriteClick);
-$("#breweryList").on("click", "input[name='visited']", processVisitedClick);
+breweryList.on("click", "div:not(.flex-container)", processAddToTourClick);
+breweryList.on("click", "input[name='favorite']", processFavoriteClick);
+breweryList.on("click", "input[name='visited']", processVisitedClick);
 $("#brew-toggle").on("click", "a.hollow", processMapToggle);
