@@ -21,17 +21,10 @@
         </li>
       </ul>
     </div>
-    <div class="top-bar-right">
-      <ul class="menu">
-        <li class="menu-text">
-          <a href="#" class="social-foundicon-github"></a>
-        </li>
-      </ul>
-    </div>
   </header>
   <!-- main grid -->
   <main class="grid-container">
-    <div class="grid-x align-center align-middle m10">
+    <div class="grid-x align-center align-middle small-margin-collapse">
       <!-- accordion search -->
       <ul id="searchForm" class="cell small-10 accordion" data-accordion>
         <li class="accordion-item is-active" data-accordion-item>
@@ -219,8 +212,9 @@
                 <li id="brew-toggle" style="height: 7vh; padding: .5rem;" class="list-group-item flex-container align-justify align-middle">
                   <div class="tiny button-group no-gaps">
                     <a id="brew-toggle-list" class="secondary button">Breweries</a>
-                    <a id="brew-toggle-tour" class="secondary button hollow">Tour</a>
+                    <a id="brew-toggle-tour" class="secondary button hollow">Tour<span id="tourCount" class="badge secondary hide"></span></a>
                   </div>
+                  <p class="show-for-medium">Select a Brewery to Add it to Your Route</p>
                 </li>
               </ol>
               <div id="displayInfo" class="cell cell-block-y brew-list">

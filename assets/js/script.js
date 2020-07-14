@@ -261,6 +261,13 @@ var displayBreweryData = function() {
 		}
 	}
 
+	//Update tour badge
+	if (tourList.length > 0) {
+		$('#tourCount').removeClass('hide');
+		$('#tourCount').html(tourList.length);
+		console.log(tourList.length);
+	}
+
 	refreshMap();
 }
 
