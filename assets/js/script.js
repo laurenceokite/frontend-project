@@ -193,7 +193,7 @@ var processBreweryData = function (data) {
     displayBreweryData();
 }
 
-var getNewStartingLocation = function() {
+var newStartLocationHandler = function() {
 	var buildKey = "";
 	var state = $('#startState').val();
 	var city = $('#startCity').val();
