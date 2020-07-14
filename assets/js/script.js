@@ -7,14 +7,23 @@ const stateLookup = { AL: "Alabama", AK: "Alaska", AS: "American Samoa", AZ: "Ar
 const breweryIconDefault = "./assets/images/pin.png";
 const breweryIconFavorite = "./assets/images/favorite.png";
 const breweryIconVisited = "./assets/images/visited.png";
-const breweryIconRoute = "./assets/images/star.png"
+const breweryIconTourSelect = "./assets/images/star.png"
 
+var startingAddress = "";
+var startingCity = "";
+var startingZip = "";
+var startingLat;
+var stratingLong;
+
+var tourMode = false;
 var breweryList = $("#breweryList");
 var favoriteList = JSON.parse(localStorage.getItem("hopToFavorites")) || [];
 var visitedList = JSON.parse(localStorage.getItem("hopToVisited")) || [];
 
-var map // Microsoft map object.
+var map; // Microsoft map object.
+var directionsManager; // Microsoft DirectionsManager object.
 var breweryData = [];
+var tourList = [];
 
 
 // Handler for the Search button
@@ -134,14 +143,26 @@ var searchZipRadius = function (event) {
 
 }
 
-var processFavoriteClick = function () {
-    var currentCB = $(this);
-    setBreweryFavorite(currentCB.attr("data-index"), currentCB.prop("checked"));
+var processFavoriteClick = function(event) {
+	var currentCB = $(this);
+	event.stopPropagation();
+	setBreweryFavorite(currentCB.closest("li").attr("data-index"), currentCB.prop("checked"));
 }
 
-var processVisitedClick = function () {
-    var currentCB = $(this);
-    setBreweryVisited(currentCB.attr("data-index"), currentCB.prop("checked"));
+var processVisitedClick = function(event) {
+	var currentCB = $(this);
+	event.stopPropagation();
+	setBreweryVisited(currentCB.closest("li").attr("data-index"), currentCB.prop("checked"));
+}
+
+var processAddToTourClick = function() {
+	var currentItem = $(this);
+
+	toggleBreweryForTour(currentItem.closest("li").attr("data-index"));
+}
+
+var processMapToggle = function() {
+	changeTourMode(!tourMode);
 }
 
 // Processes returned brewery data.
@@ -171,229 +192,345 @@ var processBreweryData = function (data) {
 }
 
 // Helper function - Retrieve missing lat/lon for brewery at the given index in our data.
-var getLatitudeLongitude = function (idx, updateMapBounds = false) {
-    var buildKey = "";
+var getLatitudeLongitude = function(idx, updateMapBounds=false) {
+	var buildKey = "";
 
-    for (var i = 0; i < bingFragments.length; i++) {
-        buildKey += bingFragments[(13 * i) % bingFragments.length];
-    }
+	for (var i = 0; i < bingFragments.length; i++) {
+		buildKey += bingFragments[(13 * i) % bingFragments.length];
+	}
 
-    fetch(
-        "http://dev.virtualearth.net/REST/v1/Locations/US/" + breweryData[idx].state.trim() + "/" + breweryData[idx].postal_code.trim() + "/" + breweryData[idx].city.trim() + "/" + breweryData[idx].street.trim() + "?key=" + buildKey
-    ).then(function (response) {
-        if (response.ok) {
-            response.json().then(function (tmpData) {
-                if (tmpData.resourceSets[0].resources[0].point.coordinates) {
-                    breweryData[idx].latitude = tmpData.resourceSets[0].resources[0].point.coordinates[0];
-                    breweryData[idx].longitude = tmpData.resourceSets[0].resources[0].point.coordinates[1];
-                }
+	fetch(
+		"http://dev.virtualearth.net/REST/v1/Locations/US/" + breweryData[idx].state.trim() + "/" + breweryData[idx].postal_code.trim() + "/" + breweryData[idx].city.trim() + "/" + breweryData[idx].street.trim() + "?key=" + buildKey
+	).then(function (response) {
+		if (response.ok) {
+			response.json().then(function (tmpData) {
+				if (tmpData.resourceSets[0].resources[0].point.coordinates) {
+					breweryData[idx].latitude = tmpData.resourceSets[0].resources[0].point.coordinates[0];
+					breweryData[idx].longitude = tmpData.resourceSets[0].resources[0].point.coordinates[1];
+				}
 
-                createMapPin(idx);
+				createMapPin(breweryData[idx]);
 
-                if ((updateMapBounds) && (map)) {
-                    calculateMapBounds();
-                }
-            });
-        }
-    })
+				if ((updateMapBounds) && (map)) {
+					calculateMapBounds();
+				}
+			});
+		}
+	})
 }
 
 // Displays our current brewery data to the screen.
-var displayBreweryData = function () {
-    var displayIndex = 0;
+var displayBreweryData = function() {
+	var i;
+	var displayIndex = 0;
 
-    if (breweryData.length === 0) {
-        console.log('nothing here');
-        $('#noBrewery').removeClass('hide');
-        breweryList.append(
-            "<li style='border: none; color: rgb(180, 180, 180); background-color: rgb(230, 230, 230, 0.1); height:50vh;' class='flex-container align-middle align-center'>"
-            + "There Doesn't Seem to Be Any Breweries Here.</li>"
-        );
-        return;
-    }
+	if (breweryData.length === 0) {
+		console.log('nothing here');
+		$('#noBrewery').removeClass('hide');
+		breweryList.append(
+			"<li style='border: none; color: rgb(180, 180, 180); background-color: rgb(230, 230, 230, 0.1); height:50vh;' class='flex-container align-middle align-center'>"
+			+ "There Doesn't Seem to Be Any Breweries Here.</li>"
+		); 
+		return;
+	}
 
-    if ($('#noBrewery').attr('class') != 'cell small-12 callout alert small flex-container align-justify align-middle hide') {
-        $('#noBrewery').addClass('hide');
-    } // If alert is triggered this hides it after succesful search
+	if ($('#noBrewery').attr('class') != 'cell small-12 callout alert small flex-container align-justify align-middle hide') {
+		$('#noBrewery').addClass('hide');
+	} // If alert is triggered this hides it after succesful search
 
-    // Make sure output is visible.
-    $("#breweryList").removeClass("hide");
-    $("#mapDisplay").removeClass("hide");
-    $("#mapToggle").removeClass("hide");
+	// Make sure output is visible.
+	$("#breweryList").removeClass("hide");
+	$("#mapDisplay").removeClass("hide");
+	$("#mapToggle").removeClass("hide");
 
-    breweryList.text("");
+	breweryList.text("");
 
-    for (var i = 0; i < breweryData.length; i++) {
-        if (breweryMeetsFilters(i)) {
-            breweryList.append(
-                "<li class='list-group-item flex-container align-justify align-middle brewery-list-item'>" +
-                "<div id='list-number' class='align-self-top'>" + (displayIndex + 1) + "</div>" +
-                "<div>" +
-                "<strong>" + "<a>" + breweryData[i].name + "</a></strong>" +
-                "<p class='subheader'>" + breweryData[i].street + ", " + breweryData[i].city + "</p>" +
-                "</div>" +
-                "<div class='flex-container'>" +
-                "<div class='checkbox'>" +
-                "<input data-index='" + displayIndex + "' class='checkbox-element' type='checkbox'  name='favorite'" + ((favoriteList.indexOf(breweryData[i].id) > -1) ? "checked" : "") + ">" +
-                "<i class='foundicon-heart'></i>" +
-                "</div>" +
-                "<div class='checkbox'>" +
-                "<input data-index='" + displayIndex + "' class='checkbox-element' type='checkbox' name='visited'" + ((visitedList.indexOf(breweryData[i].id) > -1) ? "checked" : "") + ">" +
-                "<i class='foundicon-checkmark'></i>" +
-                "</div>" +
-                "</div>" +
-                "</li>"
-            );
+	for (i = 0; i < tourList.length; i++) {
+		addBreweryToList(tourList[i], displayIndex);
+		tourList[i].displayIndex = displayIndex++;
+	}
 
-            breweryData[i].displayIndex = displayIndex++;
-        } else {
-            breweryData[i].displayIndex = null;
-        }
-    }
+	for (i = 0; i < breweryData.length; i++) {
+		if (tourList.find(testBrewery => testBrewery.id == breweryData[i].id)) {
+			continue; // Skip breweries we've already covered with tourList.
+		} else  if ((breweryMeetsFilters(breweryData[i])) && (!tourMode)) {
+			addBreweryToList(breweryData[i], displayIndex);
+			breweryData[i].displayIndex = displayIndex++;
+		} else {
+			breweryData[i].displayIndex = null;
+		}
+	}
 
-    refreshMap();
+	refreshMap();
 }
 
 // Helper function used to check current brewer against filters.
 // Logic in here only looks for reasons to disqualify, if we make it to the end it returns true by default.
-var breweryMeetsFilters = function (idx) {
-    var filterMicro = $("#microFilter").prop("checked");
-    var filterRegional = $("#regionalFilter").prop("checked");
-    var filterBrewpub = $("#brewpubFilter").prop("checked");
-    var filterLarge = $("#largeFilter").prop("checked");
+var breweryMeetsFilters = function(curBrewery) {
+	var filterMicro = $("#microFilter").prop("checked");
+	var filterRegional = $("#regionalFilter").prop("checked");
+	var filterBrewpub = $("#brewpubFilter").prop("checked");
+	var filterLarge = $("#largeFilter").prop("checked");
+	
+	// Only check type filters if one is active.
+	if (filterMicro || filterRegional || filterBrewpub || filterLarge) {
+		switch (curBrewery.brewery_type) {
+			case "micro":
+				if (!filterMicro) {
+					return false;
+				}
+				break;
+			case "regional":
+				if (!filterRegional) {
+					return false;
+				}
+				break;
+			case "brewpub":
+				if (!filterBrewpub) {
+					return false;
+				}
+				break;
+			case "large":
+				if (!filterLarge) {
+					return false;
+				}
+				break;
+		}
+	}
 
-    // Only check type filters if one is active.
-    if (filterMicro || filterRegional || filterBrewpub || filterLarge) {
-        switch (breweryData[idx].brewery_type) {
-            case "micro":
-                if (!filterMicro) {
-                    return false;
-                }
-                break;
-            case "regional":
-                if (!filterRegional) {
-                    return false;
-                }
-                break;
-            case "brewpub":
-                if (!filterBrewpub) {
-                    return false;
-                }
-                break;
-            case "large":
-                if (!filterLarge) {
-                    return false;
-                }
-                break;
-        }
-    }
+	// Visited filter.
+	if (($("#visitedFilter").prop("checked")) && (visitedList.indexOf(curBrewery.id) < 0)) {
+		return false;
+	} else if (($("#unvisitedFilter").prop("checked")) && (visitedList.indexOf(curBrewery.id) > -1)) {
+		return false;
+	}
 
-    // Visited filter.
-    if (($("#visitedFilter").prop("checked")) && (visitedList.indexOf(breweryData[idx].id) < 0)) {
-        return false;
-    } else if (($("#unvisitedFilter").prop("checked")) && (visitedList.indexOf(breweryData[idx].id) > -1)) {
-        return false;
-    }
+	// Favorites filter.
+	if (($("#favoritesFilter").prop("checked")) && (favoriteList.indexOf(curBrewery.id) < 0)) {
+		return false;
+	}
 
-    // Favorites filter.
-    if (($("#favoritesFilter").prop("checked")) && (favoriteList.indexOf(breweryData[idx].id) < 0)) {
-        return false;
-    }
+	return true;
+}
 
-    return true;
+// Helper function to append list items to the brewery list.
+var addBreweryToList = function(curBrewery, displayIndex) {
+	breweryList.append(
+		"<li class='list-group-item flex-container align-justify align-middle brewery-list-item" + ((isBreweryInTourList(curBrewery)) ? "  tourSelection" : "") + " 'data-index='" + displayIndex + "'>" +
+			"<div id='list-number' class='align-self-stretch'>" + (displayIndex + 1) +"</div>" +
+			"<div>" +
+				"<strong>" + curBrewery.name + "</strong>" +
+				"<p class='subheader'>" + curBrewery.street + ", " + curBrewery.city + "</p>" +
+			"</div>" +
+			"<div class='flex-container'>" +
+				"<div class='checkbox'>" +
+					"<input class='checkbox-element' type='checkbox'  name='favorite'" + ((favoriteList.indexOf(curBrewery.id) > -1) ? "checked" : "") + ">" +
+					"<i class='foundicon-heart'></i>" +
+				"</div>" +
+				"<div class='checkbox'>" +
+					"<input class='checkbox-element' type='checkbox' name='visited'" + ((visitedList.indexOf(curBrewery.id) > -1) ? "checked" : "") + ">" +
+					"<i class='foundicon-checkmark'></i>" +
+				"</div>" +
+			"</div>" +
+		"</li>"
+	);
 }
 
 // Resets the map widget.
-var refreshMap = function () {
-    var pin;
+var refreshMap = function() {
+	var i;
 
-    // If we already have a map, clear all markers.  Otherwise, make the map.
-    if (map) {
-        map.entities.clear();
-    }
-    else {
-        map = new Microsoft.Maps.Map("#mapDisplay");
-    }
+	// If we already have a map, clear all markers.  Otherwise, make the map.
+	if (map) {
+		map.entities.clear();
+	}
+	else {
+		map = new Microsoft.Maps.Map("#mapDisplay");
+	}
 
-    for (var i = 0; i < breweryData.length; i++) {
-        if ((breweryData[i].latitude) && (breweryData[i].longitude)) {
-            createMapPin(i);
-        }
-    }
+	if (directionsManager) {
+		directionsManager.clearAll();
+	}
 
-    calculateMapBounds();
+	if (tourMode) {
+		Microsoft.Maps.loadModule("Microsoft.Maps.Directions", function () {
+			if (!directionsManager) {
+				directionsManager = new Microsoft.Maps.Directions.DirectionsManager(map);
+			}
+			
+			directionsManager.setRequestOptions({ routeDraggable: false, routeMode: Microsoft.Maps.Directions.RouteMode.driving });
+			directionsManager.setRenderOptions({ itineraryContainer: document.querySelector("#displayInfo") });
+
+			var tourLocs = Array.from(tourList);
+
+			// If we have a starting location, add it as the first waypoint and use it to sort the tour list.
+			if ((startingLat) && (startingLon)) {
+				var loc = new Microsoft.Maps.Location(startingLat, startingLon);
+				directionsManager.addWaypoint(new Microsoft.Maps.Directions.Waypoint({ address: "You Are Here", location: loc}));
+				tourSort(startingLat, startingLon, 0, tourLocs);
+			} else { // Otherwise, the first tour list item will be used as the sorting basis.
+				tourSort(tourLocs[0].latitude, tourLocs[0].longitude, 1, tourLocs);
+				// TODO - Show a form for user to enter their address?
+			}
+
+			for (i = 0; i < tourLocs.length; i++) {
+				directionsManager.addWaypoint(new Microsoft.Maps.Directions.Waypoint({ address: tourLocs[i].name, location: tourLocs[i].pin.getLocation()}))
+			}
+
+			directionsManager.calculateDirections();
+		});
+	} else {
+		// Add all pins to the map!
+		for (i = 0; i < tourList.length; i++) {
+			createMapPin(tourList[i]);
+		}
+
+		for (i = 0; i < breweryData.length; i++) {
+			if ((breweryData[i].latitude) && (breweryData[i].longitude) && (!isBreweryInTourList(breweryData[i]))) {
+				createMapPin(breweryData[i]);
+			}
+		}
+	}
+
+	calculateMapBounds();
+}
+
+// Utility function - Sorts tour list recursively, finding the closest item to the passed in lat/lon.
+var tourSort = function(lat, lon, idx, list) {
+	var closestIdx;
+	var closestDistance = 10000;
+
+	for (var i = idx; i < list.length; i++) {
+		var diff;
+		var dist;
+
+		// Calculate distance.
+		diff = list[i].latitude - lat;
+		dist = diff * diff;
+		diff = list[i].longitude - lon;
+		dist += diff * diff;
+		dist = Math.sqrt(dist);
+
+		// Hold on to current info if it's the closest.
+		if (dist < closestDistance) {
+			closestIdx = i;
+			closestDistance = dist;
+		}
+	}
+
+	// Take the closest list item and put at the 'idx' position that was passed in.
+	var pullMe = list.splice(closestIdx, 1);
+	list.splice(idx, 0, pullMe[0]);
+
+	// Continue our sort if necessary.  No need for it on last item because there's nothing to compare to.
+	if (idx < list.length - 1) {
+		tourSort(list[idx].latitude, list[idx].longitude, idx + 1, list);
+	}
 }
 
 // Change the viewing area for the map.
 // Called when pins are added, but also as getLatitudeLongitude calls come in.
-var calculateMapBounds = function () {
-    var doSet = false;
-    var locs = [];
+var calculateMapBounds = function() {
+	var i;
+	var doSet = false;
+	var locs = [];
 
-    for (var i = 0; i < breweryData.length; i++) {
-        if (breweryData[i].pin) {
-            locs.push(breweryData[i].pin.getLocation());
-            doSet = true;
-        }
-    }
+	for (i = 0; i < tourList.length; i++) {
+		locs.push(tourList[i].pin.getLocation());
+		doSet = true;
+	}
 
-    if (doSet) {
-        map.setView({ bounds: Microsoft.Maps.LocationRect.fromLocations(locs), padding: 80 });
-    }
+	for (i = 0; i < breweryData.length; i++) {
+		if (breweryData[i].pin) {
+			locs.push(breweryData[i].pin.getLocation());
+			doSet = true;
+		}
+	}
+
+	if (doSet) {
+		map.setView({ bounds: Microsoft.Maps.LocationRect.fromLocations(locs), padding: 80 });
+	}
 }
 
 // Creates a map pin for the brewery at the specified index.
 // This is in its own function because it can be used by getLatitudeLongitude or refreshMap.
-var createMapPin = function (idx) {
-    // Don't make a pin if this brewery isn't set to display.
-    if (breweryData[idx].displayIndex == null) {
-        return;
-    }
+var createMapPin = function(curBrewery) {
+	// Don't make a pin if this brewery isn't set to display.
+	if (curBrewery.displayIndex == null) {
+		return;
+	}
 
-    if (!breweryData[idx].pin) {
-        var icon;
+	if (!curBrewery.pin) {
+		var icon;
 
-        if (favoriteList.indexOf(breweryData[idx].id) > -1) {
-            icon = breweryIconFavorite;
-        } else if (visitedList.indexOf(breweryData[idx].id) > -1) {
-            icon = breweryIconVisited;
-        } else {
-            icon = breweryIconDefault;
-        }
+		if (favoriteList.indexOf(curBrewery.id) > -1) {
+			icon = breweryIconFavorite;
+		} else if (visitedList.indexOf(curBrewery.id) > -1) {
+			icon = breweryIconVisited;
+		} else {
+			icon = breweryIconDefault;
+		}
 
-        var loc = new Microsoft.Maps.Location(breweryData[idx].latitude, breweryData[idx].longitude);
-        pin = new Microsoft.Maps.Pushpin(loc, {
-            title: breweryData[idx].name,
-            text: (breweryData[idx].displayIndex + 1).toString(),
-            icon: icon
-        });
+		var loc = new Microsoft.Maps.Location(curBrewery.latitude, curBrewery.longitude);
+		pin = new Microsoft.Maps.Pushpin(loc, {
+			title: curBrewery.name,
+			text: (curBrewery.displayIndex + 1).toString(),
+			icon: icon
+		});
 
-        breweryData[idx].pin = pin; // Save our pin so we can manipulate it later.
-    } else {
-        breweryData[idx].pin.setOptions({ text: (breweryData[idx].displayIndex + 1).toString() });
-    }
+		curBrewery.pin = pin; // Save our pin so we can manipulate it later.
+	} else {
+		curBrewery.pin.setOptions({text: (curBrewery.displayIndex + 1).toString()});
+	}
 
-    if (breweryMeetsFilters(idx)) {
-        if (map.entities.indexOf(breweryData[idx].pin) < 0) {
-            map.entities.push(breweryData[idx].pin);
-        }
-    } else if (map.entities.indexOf(breweryData[idx].pin > -1)) {
-        map.entities.remove(breweryData[idx].pin)
-    }
+	if ((isBreweryInTourList(curBrewery)) || (breweryMeetsFilters(curBrewery))) {
+		if (map.entities.indexOf(curBrewery.pin) < 0) {
+			map.entities.push(curBrewery.pin);
+		}
+	} else if (map.entities.indexOf(curBrewery.pin > -1)) {
+		map.entities.remove(curBrewery.pin)
+	}
 }
 
-var setBreweryFavorite = function (idx, favorite) {
-    var curBrewery = breweryData[getDisplayedBrewery(idx)];
+var changeTourMode = function(newMode) {
+	if (newMode == tourMode) {
+		return;
+	} else if ((newMode) && (!tourList.length)) {
+		return;
+	}
 
-    if (favorite) {
-        curBrewery.pin.setOptions({ icon: breweryIconFavorite });
+	tourMode = newMode;
+	$("#brew-toggle-list").toggleClass("hollow", tourMode);
+	$("#brew-toggle-tour").toggleClass("hollow", !tourMode);
 
-        if (favoriteList.indexOf(curBrewery.id) < 0) {
-            favoriteList.push(curBrewery.id);
-        }
-    } else {
-        var icon = (visitedList.indexOf(curBrewery.id) < 0) ? breweryIconDefault : breweryIconVisited;
-        curBrewery.pin.setOptions({ icon: icon });
+	// Brewery List would have been destroyed by tour mode, make sure we restore it.
+	if (!tourMode) {
+		$("#displayInfo").text("").append("<ol id='breweryList' class='list-group'></ol>");
+		breweryList = $("#breweryList");
+		breweryList.on("click", "div:not(.flex-container)", processAddToTourClick);
+		breweryList.on("click", "input[name='favorite']", processFavoriteClick);
+		breweryList.on("click", "input[name='visited']", processVisitedClick);
+	}
+
+	displayBreweryData();
+}
+
+var setBreweryFavorite = function(idx, favorite) {
+	var curBrewery = getDisplayedBrewery(idx);
+
+	if (favorite) {
+		if (!isBreweryInTourList(curBrewery)) {
+			curBrewery.pin.setOptions({icon: breweryIconFavorite});
+		}
+
+		if (favoriteList.indexOf(curBrewery.id) < 0) {
+			favoriteList.push(curBrewery.id);
+		}
+	} else {
+		if (!isBreweryInTourList(curBrewery)) {
+			var icon = (visitedList.indexOf(curBrewery.id) < 0) ? breweryIconDefault : breweryIconVisited;
+			curBrewery.pin.setOptions({icon: icon});
+		}
 
         var findMe = favoriteList.indexOf(curBrewery.id);
 
@@ -405,21 +542,23 @@ var setBreweryFavorite = function (idx, favorite) {
     localStorage.setItem("hopToFavorites", JSON.stringify(favoriteList));
 }
 
-var setBreweryVisited = function (idx, visited) {
-    var curBrewery = breweryData[getDisplayedBrewery(idx)];
+var setBreweryVisited = function(idx, visited) {
+	var curBrewery = getDisplayedBrewery(idx);
 
-    if (visited) {
-        if (favoriteList.indexOf(curBrewery.id) < 0) { // Only change color if not already favorited.
-            curBrewery.pin.setOptions({ icon: breweryIconVisited });
-        }
+	if (visited) {
+		// Only change color if not already favorited or selected for tour.
+		if ((favoriteList.indexOf(curBrewery.id) < 0) && (!isBreweryInTourList(curBrewery))) {
+			curBrewery.pin.setOptions({icon: breweryIconVisited});
+		}
 
-        if (visitedList.indexOf(curBrewery.id) < 0) {
-            visitedList.push(curBrewery.id);
-        }
-    } else {
-        if (favoriteList.indexOf(curBrewery.id) < 0) { // Only change color if not already favorited.
-            curBrewery.pin.setOptions({ icon: breweryIconDefault });
-        }
+		if (visitedList.indexOf(curBrewery.id) < 0) {
+			visitedList.push(curBrewery.id);
+		}
+	} else {
+		// Only change color if not already favorited or selected for tour.
+		if ((favoriteList.indexOf(curBrewery.id) < 0) && (!isBreweryInTourList(curBrewery))) {
+			curBrewery.pin.setOptions({icon: breweryIconDefault});
+		}
 
         var findMe = visitedList.indexOf(curBrewery.id);
 
@@ -431,49 +570,103 @@ var setBreweryVisited = function (idx, visited) {
     localStorage.setItem("hopToVisited", JSON.stringify(visitedList));
 }
 
+var toggleBreweryForTour = function(idx) {
+	var curBrewery = getDisplayedBrewery(idx);
+
+	if (isBreweryInTourList(curBrewery)) {
+		var icon = breweryIconDefault;
+		var findMe = tourList.findIndex(element => element.id == curBrewery.id);
+
+		if (findMe > -1) {
+			tourList.splice(findMe, 1);
+		}
+
+		if (favoriteList.indexOf(curBrewery.id) > -1) {
+			icon = breweryIconFavorite;
+		} else if (visitedList.indexOf(curBrewery.id) > -1) {
+			icon = breweryIconVisited;
+		}
+
+		curBrewery.pin.setOptions({icon: icon});
+
+		// If no tour destinations, make sure tour mode is off.
+		if (tourList.length == 0) {
+			changeTourMode(false);
+		}
+	} else {
+		tourList.push(curBrewery);
+		breweryData.sort(function(a, b) {
+			return a.name.localeCompare(b.name);
+		});
+		curBrewery.pin.setOptions({icon: breweryIconTourSelect});
+	}
+
+	// Force the list to refresh.
+	displayBreweryData();
+}
+
 // Utility function to get breweryData index based on displayIndex
-var getDisplayedBrewery = function (idx) {
-    return breweryData.findIndex((element) => element.displayIndex == idx);
+var getDisplayedBrewery = function(idx) {
+	var checkTours = tourList.find((element) => element.displayIndex == idx);
+
+	if (checkTours) {
+		return checkTours;
+	} else {
+		return breweryData.find((element) => element.displayIndex == idx);
+	}
+}
+
+var isBreweryInTourList = function(testBrewery) {
+	return (tourList.findIndex(checkBrewery => checkBrewery.id == testBrewery.id) > -1);
 }
 
 // Assembles our Bing key and adds the necessary JS reference.
-var initialize = function () {
-    var buildKey = "";
+var initialize = function() {
+	var buildKey = "";
 
-    for (var i = 0; i < bingFragments.length; i++) {
-        buildKey += bingFragments[(13 * i) % bingFragments.length];
-    }
+	for (var i = 0; i < bingFragments.length; i++) {
+		buildKey += bingFragments[(13 * i) % bingFragments.length];
+	}
 
-    var scriptEl = document.createElement("script");
-    scriptEl.setAttribute("type", "text/javascript");
-    scriptEl.setAttribute("src", "http://www.bing.com/api/maps/mapcontrol?callback=refreshMap&key=" + buildKey);
-    scriptEl.setAttribute("async", "");
-    scriptEl.setAttribute("defer", "");
-    document.head.appendChild(scriptEl);
+	var scriptEl = document.createElement("script");
+	scriptEl.setAttribute("type", "text/javascript");
+	scriptEl.setAttribute("src", "http://www.bing.com/api/maps/mapcontrol?callback=refreshMap&key=" + buildKey);
+	scriptEl.setAttribute("async", "");
+	scriptEl.setAttribute("defer", "");
+	document.head.appendChild(scriptEl);
 
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            fetch(
-                "http://dev.virtualearth.net/REST/v1/Locations/" + position.coords.latitude + "," + position.coords.longitude + "?key=" + buildKey
-            ).then(function (response) {
-                if (response.ok) {
-                    response.json().then(function (data) {
-                        // Weirdly, the city doesn't get its own field in the response, so we'll extract it from the full address.
-                        // Estimated street address is in data.resourceSets[0].resources[0].address.addressLine
-                        // Formatted address looks like: "123 Easy St, Anytown, WI 54799"
-                        var addressParts = data.resourceSets[0].resources[0].address.formattedAddress.split(",");
+	if (navigator.geolocation)
+	{
+		navigator.geolocation.getCurrentPosition((position) => 
+		{
+			fetch(
+				"http://dev.virtualearth.net/REST/v1/Locations/" + position.coords.latitude + "," + position.coords.longitude + "?key=" + buildKey
+			).then(function (response) {
+				if (response.ok) {
+					response.json().then(function (data) {
+						// Weirdly, the city doesn't get its own field in the response, so we'll extract it from the full address.
+						// Formatted address looks like: "123 Easy St, Anytown, WI 54799"
+						var addressParts = data.resourceSets[0].resources[0].address.formattedAddress.split(",");
 
-                        $("#byCity").val(addressParts[1].trim());
-                        $("#distanceZip").val(data.resourceSets[0].resources[0].address.postalCode);
+						startingAddress = data.resourceSets[0].resources[0].address.addressLine;
+						startingCity = addressParts[1].trim();
+						startingZip = data.resourceSets[0].resources[0].address.postalCode;
 
-                        if (data.resourceSets[0].resources[0].address.adminDistrict in stateLookup) {
-                            $("#byState").val(stateLookup[data.resourceSets[0].resources[0].address.adminDistrict]);
-                        }
-                    });
-                }
-            });
-        });
-    }
+						startingLat = data.resourceSets[0].resources[0].point.coordinates[0];
+						startingLon = data.resourceSets[0].resources[0].point.coordinates[1];
+
+						$("#byCity").val(startingCity);
+						$("#distanceZip").val(startingZip);
+
+						if (data.resourceSets[0].resources[0].address.adminDistrict in stateLookup) {
+							startingState = stateLookup[data.resourceSets[0].resources[0].address.adminDistrict];
+							$("#byState").val(startingState);
+						}
+					});
+				}
+			});
+		});
+	}
 }
 
 initialize();
@@ -482,6 +675,7 @@ $(document).foundation();
 $("#searchCityState").on("click", searchCityState);
 $("#searchZipRadius").on("click", searchZipRadius);
 $("#filterBy").on("click", "input", displayBreweryData);
-$("#breweryList").on("click", "input[name='favorite']", processFavoriteClick);
-$("#breweryList").on("click", "input[name='visited']", processVisitedClick);
-
+breweryList.on("click", "div:not(.flex-container)", processAddToTourClick);
+breweryList.on("click", "input[name='favorite']", processFavoriteClick);
+breweryList.on("click", "input[name='visited']", processVisitedClick);
+$("#brew-toggle").on("click", "a.hollow", processMapToggle);
