@@ -751,7 +751,7 @@ var initialize = function() {
 initialize();
 $(document).foundation();
 
-$('#startLocationSubmit').on('click', getNewStartingLocation);
+$('#startLocationSubmit').on('click', newStartLocationHandler);
 $("#searchCityState").on("click", searchCityState);
 $("#searchZipRadius").on("click", searchZipRadius);
 $("#filterBy").on("click", "input", displayBreweryData);
