@@ -210,11 +210,86 @@
             <div style="height: 43vh;" class="grid-x">
               <ol id="mapToggle" class="cell list-group hide">
                 <li id="brew-toggle" style="height: 7vh; padding: .5rem;" class="list-group-item flex-container align-justify align-middle">
-                  <div class="tiny button-group no-gaps">
+                  <div class="small button-group no-gaps">
                     <a id="brew-toggle-list" class="secondary button">Breweries</a>
-                    <a id="brew-toggle-tour" class="secondary button hollow">Tour<span id="tourCount" class="badge secondary hide"></span></a>
+                    <a id="brew-toggle-tour" class="secondary button hollow">Tour<span id="tourCount" class="badge primary hide"></span></a>
                   </div>
-                  <p class="show-for-medium">Select a Brewery to Add it to Your Route</p>
+                  <p id="tourHelperPar">Select a Brewery to Add it to Your Route</p>
+                  <button id="startLocationButton" class="secondary button small hollow hide" data-open="startLocationForm">Change Starting Location</button>
+                  <div id="startLocationForm" class="reveal" data-reveal>
+                    <button class="close-button text-right" data-close aria-label="Close modal" type="button">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                    <form>
+                      <div class="callout alert small flex-container align-justify align-middle" data-closable>
+                        <p class="text-center">Invalid Address</p>
+                        <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <label for="startAddress">Address:</label>
+                      <input type="text" id="startAddress" placeholder="Address">
+                      <label for="startCity">City:</label>
+                      <input type="text" id="startCity" placeholder="City">
+                      <label for="startState">State:
+                        <select id="startState">
+                          <option disabled selected>State</option>
+                          <option>Alabama</option>
+                          <option>Alaska</option>
+                          <option>Arizona</option>
+                          <option>Arkansas</option>
+                          <option>California</option>
+                          <option>Colorado</option>
+                          <option>Connecticut</option>
+                          <option>Delaware</option>
+                          <option>District Of Columbia</option>
+                          <option>Florida</option>
+                          <option>Georgia</option>
+                          <option>Hawaii</option>
+                          <option>Idaho</option>
+                          <option>Illinois</option>
+                          <option>Indiana</option>
+                          <option>Iowa</option>
+                          <option>Kansas</option>
+                          <option>Kentucky</option>
+                          <option>Louisiana</option>
+                          <option>Maine</option>
+                          <option>Maryland</option>
+                          <option>Massachusetts</option>
+                          <option>Michigan</option>
+                          <option>Minnesota</option>
+                          <option>Mississippi</option>
+                          <option>Missouri</option>
+                          <option>Montana</option>
+                          <option>Nebraska</option>
+                          <option>Nevada</option>
+                          <option>New Hampshire</option>
+                          <option>New Jersey</option>
+                          <option>New Mexico</option>
+                          <option>New York</option>
+                          <option>North Carolina</option>
+                          <option>North Dakota</option>
+                          <option>Ohio</option>
+                          <option>Oklahoma</option>
+                          <option>Oregon</option>
+                          <option>Pennsylvania</option>
+                          <option>Rhode Island</option>
+                          <option>South Carolina</option>
+                          <option>South Dakota</option>
+                          <option>Tennessee</option>
+                          <option>Texas</option>
+                          <option>Utah</option>
+                          <option>Vermont</option>
+                          <option>Virginia</option>
+                          <option>Washington</option>
+                          <option>West Virginia</option>
+                          <option>Wisconsin</option>
+                          <option>Wyoming</option>
+                        </select>
+                      </label>
+                      <button id="startLocationSubmit" type="button" class="button medium expanded submit">Submit</button>
+                    </form>
+                  </div>
                 </li>
               </ol>
               <div id="displayInfo" class="cell cell-block-y brew-list">

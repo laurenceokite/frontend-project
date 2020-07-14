@@ -157,6 +157,7 @@ var processVisitedClick = function(event) {
 
 var processAddToTourClick = function() {
 	var currentItem = $(this);
+	$('#tourHelperPar').attr('style', 'color: black;');//if faulty click of tour button switched p to red, switch back
 
 	toggleBreweryForTour(currentItem.closest("li").attr("data-index"));
 }
@@ -265,7 +266,10 @@ var displayBreweryData = function() {
 	if (tourList.length > 0) {
 		$('#tourCount').removeClass('hide');
 		$('#tourCount').html(tourList.length);
-		console.log(tourList.length);
+	} 
+
+	else if ($('#tourCount').attr('class') != 'badge primary hide') {
+		$('#tourCount').addClass('hide');
 	}
 
 	refreshMap();
@@ -503,12 +507,15 @@ var changeTourMode = function(newMode) {
 	if (newMode == tourMode) {
 		return;
 	} else if ((newMode) && (!tourList.length)) {
+		$('#tourHelperPar').attr('style', 'color: red;');
 		return;
 	}
 
 	tourMode = newMode;
 	$("#brew-toggle-list").toggleClass("hollow", tourMode);
 	$("#brew-toggle-tour").toggleClass("hollow", !tourMode);
+	$('#tourHelperPar').toggleClass('hide', tourMode);
+	$('#startLocationButton').toggleClass('hide', !tourMode);
 
 	// Brewery List would have been destroyed by tour mode, make sure we restore it.
 	if (!tourMode) {
