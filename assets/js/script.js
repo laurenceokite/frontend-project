@@ -13,7 +13,7 @@ var startingAddress = "";
 var startingCity = "";
 var startingZip = "";
 var startingLat;
-var stratingLong;
+var startingLon;
 
 var tourMode = false;
 var breweryList = $("#breweryList");
@@ -157,6 +157,7 @@ var processVisitedClick = function(event) {
 
 var processAddToTourClick = function() {
 	var currentItem = $(this);
+
 	$('#tourHelperPar').attr('style', 'color: black;');//if faulty click of tour button switched p to red, switch back
 
 	toggleBreweryForTour(currentItem.closest("li").attr("data-index"));
@@ -190,6 +191,70 @@ var processBreweryData = function (data) {
     }
 
     displayBreweryData();
+}
+
+var getNewStartingLocation = function() {
+	var buildKey = "";
+	var state = $('#startState').val();
+	var city = $('#startCity').val();
+	var address = $('#startAddress').val().replace(/[^a-z0-9\s]/gi, '');
+	
+	for (var i = 0; i < bingFragments.length; i++) {
+		buildKey += bingFragments[(13 * i) % bingFragments.length];
+	}
+
+	$('#invalidCity').addClass('hide');
+	$('#invalidState').addClass('hide');
+
+	if (!city) {
+		$('#invalidCity').removeClass('hide');
+		return;
+	}
+
+	console.log(state);
+
+	if (!state) {
+		$('#invalidState').removeClass('hide');
+		return;
+	}
+
+	if (!address) {
+		fetch(
+			"http://dev.virtualearth.net/REST/v1/Locations/US/" + state + "/" + city.trim() + "?key=" + buildKey
+		).then(function (response) {
+			if (response.ok) {
+				response.json().then(function (tmpData) {
+					if (tmpData.resourceSets[0].resources[0].point.coordinates) {
+						startingLat = tmpData.resourceSets[0].resources[0].point.coordinates[0];
+						startingLon = tmpData.resourceSets[0].resources[0].point.coordinates[1];
+						refreshMap();
+						$('#startLocationForm').trigger('close');
+					}
+					
+				})
+			} 
+		});
+	} 
+
+	else {
+		fetch(
+			"http://dev.virtualearth.net/REST/v1/Locations/US/" + state + "/" + city.trim() + "/" + address.trim() + "?key=" + buildKey
+		).then(function (response) {
+			if (response.ok) {
+				response.json().then(function (tmpData) {
+					if (tmpData.resourceSets[0].resources[0].point.coordinates) {
+						startingLat = tmpData.resourceSets[0].resources[0].point.coordinates[0];
+						startingLon = tmpData.resourceSets[0].resources[0].point.coordinates[1];
+						refreshMap();
+						$('#startLocationForm').trigger('close');
+					}
+					
+				})
+			} 
+		});
+	}
+
+	
 }
 
 // Helper function - Retrieve missing lat/lon for brewery at the given index in our data.
@@ -686,6 +751,7 @@ var initialize = function() {
 initialize();
 $(document).foundation();
 
+$('#startLocationSubmit').on('click', getNewStartingLocation);
 $("#searchCityState").on("click", searchCityState);
 $("#searchZipRadius").on("click", searchZipRadius);
 $("#filterBy").on("click", "input", displayBreweryData);
