@@ -57,7 +57,7 @@ var searchCityState = function (event) {
             if (response.ok) {
                 response.json().then(function (data) {
                     breweryAPIResults.push.apply(breweryAPIResults, data);
-                    console.log(breweryAPIResults)
+                    //console.log(breweryAPIResults)
                     if (data.length === 50) {
                         getResults(++pageIndex)
                     }
@@ -94,10 +94,10 @@ var searchZipRadius = function (event) {
     // API call format: https://www.zipcodeapi.com/rest/<api_key>/radius.<format>/<zip_code>/<distance>/<units>
     fetch(zipSearchURL, { mode: 'cors' }).then(function (response) {
         
-        console.dir(response);
+        //console.dir(response);
         if (response.ok) {
             $("#BadZipCode").addClass("hide");
-            console.log("response ok")
+            //console.log("response ok")
 
             response.json().then(function (data) {
                 var numCitiesNearby = data.zip_codes.length;
@@ -121,7 +121,7 @@ var searchZipRadius = function (event) {
                             data[i].forEach(value => breweryAPIResults.push(value));
                         }
                     }
-                    console.log(breweryAPIResults)
+                    //console.log(breweryAPIResults)
                     //Send the breweryList to processBreweryData
                     processBreweryData(breweryAPIResults);
                 }).catch(function (error) {
@@ -132,7 +132,7 @@ var searchZipRadius = function (event) {
 
         }
         else {
-            console.log("response status: " + response.status);
+            //console.log("response status: " + response.status);
             if (response.status == 404) {
                 //show invalid ZIP error
                 $("#BadZipCode").removeClass("hide");
@@ -216,8 +216,6 @@ var newStartLocationHandler = function() {
 		return;
 	}
 
-	console.log(state);
-
 	if (!state) {
 		$('#invalidState').removeClass('hide');
 		return;
@@ -298,7 +296,6 @@ var displayBreweryData = function() {
 	var displayIndex = 0;
 
 	if (breweryData.length === 0) {
-		console.log('nothing here');
 		$('#noBrewery').removeClass('hide');
 		breweryList.append(
 			"<li style='border: none; color: rgb(180, 180, 180); background-color: rgb(230, 230, 230, 0.1); height:50vh;' class='flex-container align-middle align-center'>"
