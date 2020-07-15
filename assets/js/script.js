@@ -143,6 +143,11 @@ var searchZipRadius = function (event) {
 
 }
 
+var defaultRadiusZip = function() {
+	event.preventDefault();
+	$("#distanceZip").val(startingZip);
+}
+
 var processFavoriteClick = function(event) {
 	var currentCB = $(this);
 	event.stopPropagation();
@@ -227,6 +232,7 @@ var newStartLocationHandler = function() {
 					if (tmpData.resourceSets[0].resources[0].point.coordinates) {
 						startingLat = tmpData.resourceSets[0].resources[0].point.coordinates[0];
 						startingLon = tmpData.resourceSets[0].resources[0].point.coordinates[1];
+						startingZip = tmpData.resourceSets[0].resources[0].address.postalCode; // Save this for the zip radius pin to fill into the zip field.
 						refreshMap();
 						$('#startLocationForm').trigger('close');
 					}
@@ -245,6 +251,7 @@ var newStartLocationHandler = function() {
 					if (tmpData.resourceSets[0].resources[0].point.coordinates) {
 						startingLat = tmpData.resourceSets[0].resources[0].point.coordinates[0];
 						startingLon = tmpData.resourceSets[0].resources[0].point.coordinates[1];
+						startingZip = tmpData.resourceSets[0].resources[0].address.postalCode; // Save this for the zip radius pin to fill into the zip field.
 						refreshMap();
 						$('#startLocationForm').trigger('close');
 					}
@@ -757,6 +764,7 @@ $(document).foundation();
 
 $('#startLocationSubmit').on('click', newStartLocationHandler);
 $("#searchCityState").on("click", searchCityState);
+$("#zip-pin").on("click", defaultRadiusZip);
 $("#searchZipRadius").on("click", searchZipRadius);
 $("#filterBy").on("click", "input", displayBreweryData);
 breweryList.on("click", "div:not(.flex-container)", processAddToTourClick);
