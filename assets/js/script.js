@@ -741,6 +741,10 @@ var initialize = function() {
 							startingState = stateLookup[data.resourceSets[0].resources[0].address.adminDistrict];
 							$("#byState").val(startingState);
 						}
+
+						$('#startState').val(data.resourceSets[0].resources[0].address.adminDistrict);
+						$('#startCity').val(startingCity);
+						$('#startAddress').val(startingAddress);
 					});
 				}
 			});
