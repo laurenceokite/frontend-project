@@ -1,0 +1,353 @@
+:root {
+  --hop-green: #83ad61;
+  --dark-green: #91b376;
+  --light-grey: rgb(240, 240, 240);
+  --grey: rgb(200,200,200);
+  --dark-grey: rgb(160,160,160);
+}
+
+*:focus {
+  outline: none;
+}
+
+header {
+  box-shadow: 0 40px 30px 10px #e6e6e6;
+  height: 10vh;
+}
+
+header img {
+  width: 10rem;
+  height: auto;
+  background-color: rgb(0, 0, 0, 0.0);
+  margin-top: 2rem;
+  position: absolute;
+  top: -3.3rem;
+  left: 4.2rem;
+}
+
+ul.menu {
+  background-color: rgb(0, 0, 0, 0.0);
+}
+
+.top-bar-right a {
+  font-size: 2.5rem;
+  margin-top: 2.5rem;
+  margin-right: 2.5rem;
+}
+
+#list-number {
+  font-weight: bolder;
+  width: 2rem;
+  color: var(--dark-green);
+}
+
+.tourSelection #list-number {
+  color: var(--dark-grey);
+}
+
+.tourSelection {
+  background-color: rgb(255, 244, 192, 0.5);
+  border-color: #fff4c0;
+}
+
+.directionsPanel {
+  width: 100% !important;
+}
+
+#brew-toggle-tour .badge {
+  display: inline;
+  padding: .2em .5em;
+  margin-left: .5em;
+}
+
+.badge.primary {
+  background: var(--dark-green);
+}
+
+#brew-toggle p {
+  font-size: .8rem;
+  margin: 0;
+  margin-right: 1rem;
+  font-weight: bolder;
+}
+
+div.small.button-group {
+  margin: 0;
+}
+
+.callout p {
+  margin: 0;
+  margin-left: .5rem;
+  color: rgb(130,130,130);
+}
+
+.close-button {
+  position: static;
+  margin-bottom: .3rem !important;
+}
+
+.button.submit, .button.submit:focus {
+  margin: 1rem 0;
+  background-color: var(--dark-grey) !important;
+  font-weight: bold;
+  border-radius: 3px;
+  outline: none;
+}
+
+.button.submit:hover {
+  background-color: var(--grey) !important;
+  border: none !important;
+}
+
+#breweryList .list-group-item:hover {
+  background-color: var(--light-grey);
+}
+
+#breweryList .tourSelection:hover {
+  background-color: rgb(255, 244, 192, 0.8) !important;
+}
+
+footer {
+  background-color: var(--dark-green) !important;
+  color: white;
+}
+
+.accordion-content {
+  background-color: var(--light-grey);
+  box-shadow: inset 0 7px 9px -7px rgba(0,0,0,0.4);
+  border: none;     
+}
+
+.accordion-title, .accordion-title:active, .accordion-title:focus {
+  background-color: var(--dark-green) !important;
+  border: none;
+  font-weight: bold;
+}
+
+.accordion-title:hover {
+  background-color: var(--hop-green) !important;
+}
+
+.accordion-item a {
+  color: white;
+}
+
+.fieldset {
+  background-color: rgb(250, 250, 250);
+  box-shadow:  0 0 10px 1px rgb(225,225,225);
+}
+
+#zip-input {
+  background-color: white;
+}
+
+.pin-button {
+  background-color: rgb(230, 230, 230, 0.7);
+  margin: 3px;
+  border-radius: 5px;
+  padding: 5px;
+  color: rgb(0, 0, 0, 0.3);
+  font-size: larger;
+}
+
+.pin-button:hover {
+  background-color: rgb(230, 230, 230);
+
+}
+
+.button-input {
+  border: 1px solid #cacaca;
+  box-shadow: inset 0 1px 2px rgba(10,10,10,.1);
+}
+
+label.middle {
+  margin: 1rem 0 !important;
+}
+
+input, select {
+  margin: 1rem 0 !important;
+}
+
+ol {
+  margin: 0;
+}
+
+.button-input input {
+  border: none;
+  box-shadow: none;
+  background-color: rgba(255,255,255,.0);
+  margin: 0 !important;
+}
+
+a {
+  color: black;
+}
+
+#brew-toggle a:not(.hollow) {
+  cursor: default;
+}
+
+.switch-paddle {
+  border-radius: 15px;
+}
+
+.switch-paddle::after {
+  border-radius: 15px;
+}
+
+input:checked~.switch-paddle {
+  background-color: var(--dark-green);
+}
+
+
+.checkbox-element {
+  position: absolute;
+  width: 30px;
+  top: -20px;
+  left: -7px;
+  height: 30px;
+  z-index:99999;
+  opacity:0;
+  margin: 0;
+}
+
+.checkbox {
+  position: relative;
+  margin: 0 10px;
+}
+
+.checkbox>input[type='checkbox']+i{
+    color:rgba(0,0,0,0.2);
+}
+
+.checkbox>input[name='favorite']:checked+i{
+  color: #c04040;
+}
+  
+.checkbox>input[name='visited']:checked+i{
+  color: #386088;
+}
+
+.brewery-list-item > div:first-child {
+  cursor: default;
+  font-size: larger;
+}
+
+.brewery-list-item > div:nth-child(2) {
+  padding-left: 8px;
+  width: 100%;
+}
+
+.brewery-list-item p {
+  font-size: smaller;
+}
+
+#mapToggle {
+  border: none;
+  background-color: #e6e6e6;
+}
+
+.list-group {
+  border: 1px solid #e6e6e6;
+  border-radius: 0;
+  background: #fefefe;
+  box-shadow: none;
+  overflow: hidden;
+  color: #0a0a0a;
+}
+  
+.list-group > :last-child {
+  margin-bottom: 0;
+}
+  
+.list-group-item {
+  padding: 0 .5rem;
+  border-bottom: 1px solid #e6e6e6;
+}
+  
+  .list-group-item > :last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+  
+  .list-group-item.active {
+    color: #fefefe;
+    background-color: #1779ba;
+    border-color: 1px solid #1779ba;
+  }
+  
+  .list-group-item:hover, .list-group-item:focus {
+    background-color: #e6e6e6;
+  }
+  
+  .list-group-item:hover.active, .list-group-item:focus.active {
+    background-color: #1779ba;
+  }
+  
+  .list-group-item.disabled, .list-group-item.disabled:hover, .list-group-item.disabled:focus, .list-group-item[disabled], .list-group-item[disabled]:hover, .list-group-item[disabled]:focus {
+    color: #8a8a8a;
+    cursor: not-allowed;
+    background-color: #fefefe;
+  }
+  
+  @media screen and (max-width: 39.9375em) {
+    .button.small-only-expanded {
+      display: block;
+      width: 100%;
+      margin-right: 0;
+      margin-left: 0; } }
+  @media screen and (min-width: 40em) and (max-width: 63.9375em) {
+    .button.medium-only-expanded {
+      display: block;
+      width: 100%;
+      margin-right: 0;
+      margin-left: 0; } }
+  @media screen and (max-width: 63.9375em) {
+    .button.medium-down-expanded {
+      display: block;
+      width: 100%;
+      margin-right: 0;
+      margin-left: 0; } }
+  @media print, screen and (min-width: 40em) {
+    .button.medium-expanded {
+      display: block;
+      width: 100%;
+      margin-right: 0;
+      margin-left: 0; } }
+  @media screen and (min-width: 64em) and (max-width: 74.9375em) {
+    .button.large-only-expanded {
+      display: block;
+      width: 100%;
+      margin-right: 0;
+      margin-left: 0; } }
+  @media screen and (max-width: 74.9375em) {
+    .button.large-down-expanded {
+      display: block;
+      width: 100%;
+      margin-right: 0;
+      margin-left: 0; } }
+  @media print, screen and (min-width: 64em) {
+    .button.large-expanded {
+      display: block;
+      width: 100%;
+      margin-right: 0;
+      margin-left: 0; } }
+
+@media only screen and (max-width: 550px) {
+  .small-margin-collapse>.small-10 {
+    width: 100%;
+  }
+
+  #brew-toggle p {
+    font-size: .7rem;
+    flex-wrap: wrap;
+    margin-left: .4rem;
+    margin-right: .4rem;
+  }
+
+  #brew-toggle .button-group {
+    flex-wrap: nowrap;
+  }
+}
+  
+  
