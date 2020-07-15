@@ -220,7 +220,7 @@ var newStartLocationHandler = function() {
 
 	if (!address) {
 		fetch(
-			"http://dev.virtualearth.net/REST/v1/Locations/US/" + state + "/" + city.trim() + "?key=" + buildKey
+			"https://dev.virtualearth.net/REST/v1/Locations/US/" + state + "/" + city.trim() + "?key=" + buildKey
 		).then(function (response) {
 			if (response.ok) {
 				response.json().then(function (tmpData) {
@@ -238,7 +238,7 @@ var newStartLocationHandler = function() {
 
 	else {
 		fetch(
-			"http://dev.virtualearth.net/REST/v1/Locations/US/" + state + "/" + city.trim() + "/" + address.trim() + "?key=" + buildKey
+			"https://dev.virtualearth.net/REST/v1/Locations/US/" + state + "/" + city.trim() + "/" + address.trim() + "?key=" + buildKey
 		).then(function (response) {
 			if (response.ok) {
 				response.json().then(function (tmpData) {
@@ -266,7 +266,7 @@ var getLatitudeLongitude = function(idx, updateMapBounds=false) {
 	}
 
 	fetch(
-		"http://dev.virtualearth.net/REST/v1/Locations/US/" + breweryData[idx].state.trim() + "/" + breweryData[idx].postal_code.trim() + "/" + breweryData[idx].city.trim() + "/" + breweryData[idx].street.trim() + "?key=" + buildKey
+		"https://dev.virtualearth.net/REST/v1/Locations/US/" + breweryData[idx].state.trim() + "/" + breweryData[idx].postal_code.trim() + "/" + breweryData[idx].city.trim() + "/" + breweryData[idx].street.trim() + "?key=" + buildKey
 	).then(function (response) {
 		if (response.ok) {
 			response.json().then(function (tmpData) {
@@ -709,7 +709,7 @@ var initialize = function() {
 
 	var scriptEl = document.createElement("script");
 	scriptEl.setAttribute("type", "text/javascript");
-	scriptEl.setAttribute("src", "http://www.bing.com/api/maps/mapcontrol?callback=refreshMap&key=" + buildKey);
+	scriptEl.setAttribute("src", "https://www.bing.com/api/maps/mapcontrol?callback=refreshMap&key=" + buildKey);
 	scriptEl.setAttribute("async", "");
 	scriptEl.setAttribute("defer", "");
 	document.head.appendChild(scriptEl);
@@ -719,7 +719,7 @@ var initialize = function() {
 		navigator.geolocation.getCurrentPosition((position) => 
 		{
 			fetch(
-				"http://dev.virtualearth.net/REST/v1/Locations/" + position.coords.latitude + "," + position.coords.longitude + "?key=" + buildKey
+				"https://dev.virtualearth.net/REST/v1/Locations/" + position.coords.latitude + "," + position.coords.longitude + "?key=" + buildKey
 			).then(function (response) {
 				if (response.ok) {
 					response.json().then(function (data) {
