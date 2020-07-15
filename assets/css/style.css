@@ -283,10 +283,6 @@ input:checked~.switch-paddle {
   background-color: #e6e6e6;
 }
 
-#brew-toggle {
-  border-bottom: solid 1px black;
-}
-
 .list-group {
   border: 1px solid #e6e6e6;
   border-radius: 0;
