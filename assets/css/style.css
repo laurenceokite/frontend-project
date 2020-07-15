@@ -164,6 +164,12 @@ footer {
 .fieldset {
   background-color: rgb(250, 250, 250);
   box-shadow:  0 0 10px 1px rgb(225,225,225);
+  padding: .5rem;
+  padding-left: 2.5rem;
+}
+
+fieldset:last-child {
+  padding-left: .5rem;
 }
 
 #zip-input {
@@ -382,6 +388,15 @@ input:checked~.switch-paddle {
   #brew-toggle .button-group {
     flex-wrap: nowrap;
   }
+}
+
+@media only screen and (max-width: 390px) {
+  label.switch-paddle {
+    transform: rotate(270deg);
+    margin-top: 2rem;
+  }
+
+  
 }
   
   
