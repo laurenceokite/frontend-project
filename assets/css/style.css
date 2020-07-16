@@ -1,28 +1,37 @@
 :root {
-  --hop-green: #83ad61;
-  --dark-green: #91b376;
+  --blue-green: #82ad68;
+  --main-green: #93bd79;
+  --gin-fizz: #f1faed;
+  --gin-light: #a6deac;
   --light-grey: rgb(240, 240, 240);
   --grey: rgb(200,200,200);
   --dark-grey: rgb(160,160,160);
+}
+
+main ul {
+  box-shadow: 2px 2px 6px rgb(0,0,0,0.2);
 }
 
 *:focus {
   outline: none;
 }
 
-header {
-  box-shadow: 0 40px 30px 10px #e6e6e6;
-  height: 10vh;
+body {
+  background-image: linear-gradient(180deg, var(--gin-fizz), rgb(241, 250, 237, 0.8)),
+  url(../images/r5oK9D.jpg);
+}
+
+header.top-bar {
+  background: rgb(0, 0, 0, 0.0);
+  margin-bottom: 1rem !important;
 }
 
 header img {
   width: 10rem;
   height: auto;
   background-color: rgb(0, 0, 0, 0.0);
-  margin-top: 2rem;
-  position: absolute;
-  top: -3.3rem;
-  left: 4.2rem;
+  margin-top: 5px;
+  margin-left: 15vw;
 }
 
 ul.menu {
@@ -38,11 +47,11 @@ ul.menu {
 #list-number {
   font-weight: bolder;
   width: 2rem;
-  color: var(--dark-green);
+  color: var(--blue-green);
 }
 
 .tourSelection #list-number {
-  color: var(--dark-grey);
+  color: var(--main-green);
 }
 
 .tourSelection {
@@ -52,6 +61,7 @@ ul.menu {
 
 .directionsPanel {
   width: 100% !important;
+  background:  rgb(241, 250, 237, 0.6);
 }
 
 #brew-toggle-tour .badge {
@@ -60,9 +70,6 @@ ul.menu {
   margin-left: .5em;
 }
 
-.badge.primary {
-  background: var(--dark-green);
-}
 
 #brew-toggle p {
   font-size: .8rem;
@@ -88,19 +95,38 @@ div.small.button-group {
 
 .button.submit, .button.submit:focus {
   margin: 1rem 0;
-  background-color: var(--dark-grey) !important;
+  background: linear-gradient(40deg, var(--main-green), var(--blue-green)) !important;
   font-weight: bold;
   border-radius: 3px;
   outline: none;
+  box-shadow: 2px 2px 6px rgb(0,0,0,0.2);
 }
 
 .button.submit:hover {
-  background-color: var(--grey) !important;
+  background: var(--main-green) !important;
   border: none !important;
 }
 
-#breweryList .list-group-item:hover {
+.button.secondary {
+  background-color: var(--main-green);
+  color: black;
+  border-color: black;
+  box-shadow: 2px 2px 6px rgb(0,0,0,0.2);
+}
+.button.secondary:hover {
+  background-color: var(--blue-green);
+}
+
+.button.secondary.hollow {
   background-color: var(--light-grey);
+  border-color: black;
+  color: black;
+}
+
+
+
+#breweryList .list-group-item:hover {
+  background-color: rgb(255, 244, 192, 0.5);
 }
 
 #breweryList .tourSelection:hover {
@@ -108,7 +134,7 @@ div.small.button-group {
 }
 
 footer {
-  background-color: var(--dark-green) !important;
+  background-color: var(--main-green) !important;
   color: white;
 }
 
@@ -118,15 +144,18 @@ footer {
   border: none;     
 }
 
-.accordion-title, .accordion-title:active, .accordion-title:focus {
-  background-color: var(--dark-green) !important;
+.accordion-title, .accordion-title:active, .accordion-title:focus  {
+  background: linear-gradient(40deg, var(--main-green), var(--blue-green)) !important;
   border: none;
   font-weight: bold;
 }
 
-.accordion-title:hover {
-  background-color: var(--hop-green) !important;
+
+:last-child:not(.is-active)>.accordion-title {
+  border: none;
 }
+
+
 
 .accordion-item a {
   color: white;
@@ -135,6 +164,12 @@ footer {
 .fieldset {
   background-color: rgb(250, 250, 250);
   box-shadow:  0 0 10px 1px rgb(225,225,225);
+  padding: .5rem;
+  padding-left: 2.5rem;
+}
+
+fieldset:last-child {
+  padding-left: .5rem;
 }
 
 #zip-input {
@@ -180,12 +215,13 @@ ol {
 }
 
 a {
-  color: black;
+  color: var(--blue-green);
 }
 
 #brew-toggle a:not(.hollow) {
   cursor: default;
 }
+
 
 .switch-paddle {
   border-radius: 15px;
@@ -196,7 +232,7 @@ a {
 }
 
 input:checked~.switch-paddle {
-  background-color: var(--dark-green);
+  background-color: var(--main-green);
 }
 
 
@@ -335,7 +371,7 @@ input:checked~.switch-paddle {
 
 @media only screen and (max-width: 550px) {
   .small-margin-collapse>.small-10 {
-    width: 100%;
+    width: 90%;
   }
 
   #brew-toggle p {
@@ -348,6 +384,15 @@ input:checked~.switch-paddle {
   #brew-toggle .button-group {
     flex-wrap: nowrap;
   }
+}
+
+@media only screen and (max-width: 390px) {
+  label.switch-paddle {
+    transform: rotate(270deg);
+    margin-top: 2rem;
+  }
+
+  
 }
   
   

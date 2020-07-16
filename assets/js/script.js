@@ -57,7 +57,7 @@ var searchCityState = function (event) {
             if (response.ok) {
                 response.json().then(function (data) {
                     breweryAPIResults.push.apply(breweryAPIResults, data);
-                    console.log(breweryAPIResults)
+                    //console.log(breweryAPIResults)
                     if (data.length === 50) {
                         getResults(++pageIndex)
                     }
@@ -94,10 +94,10 @@ var searchZipRadius = function (event) {
     // API call format: https://www.zipcodeapi.com/rest/<api_key>/radius.<format>/<zip_code>/<distance>/<units>
     fetch(zipSearchURL, { mode: 'cors' }).then(function (response) {
         
-        console.dir(response);
+        //console.dir(response);
         if (response.ok) {
             $("#BadZipCode").addClass("hide");
-            console.log("response ok")
+            //console.log("response ok")
 
             response.json().then(function (data) {
                 var numCitiesNearby = data.zip_codes.length;
@@ -121,7 +121,7 @@ var searchZipRadius = function (event) {
                             data[i].forEach(value => breweryAPIResults.push(value));
                         }
                     }
-                    console.log(breweryAPIResults)
+                    //console.log(breweryAPIResults)
                     //Send the breweryList to processBreweryData
                     processBreweryData(breweryAPIResults);
                 }).catch(function (error) {
@@ -132,7 +132,7 @@ var searchZipRadius = function (event) {
 
         }
         else {
-            console.log("response status: " + response.status);
+            //console.log("response status: " + response.status);
             if (response.status == 404) {
                 //show invalid ZIP error
                 $("#BadZipCode").removeClass("hide");
@@ -141,6 +141,11 @@ var searchZipRadius = function (event) {
 
     })
 
+}
+
+var defaultRadiusZip = function() {
+	event.preventDefault();
+	$("#distanceZip").val(startingZip);
 }
 
 var processFavoriteClick = function(event) {
@@ -211,8 +216,6 @@ var newStartLocationHandler = function() {
 		return;
 	}
 
-	console.log(state);
-
 	if (!state) {
 		$('#invalidState').removeClass('hide');
 		return;
@@ -227,6 +230,7 @@ var newStartLocationHandler = function() {
 					if (tmpData.resourceSets[0].resources[0].point.coordinates) {
 						startingLat = tmpData.resourceSets[0].resources[0].point.coordinates[0];
 						startingLon = tmpData.resourceSets[0].resources[0].point.coordinates[1];
+						startingZip = tmpData.resourceSets[0].resources[0].address.postalCode; // Save this for the zip radius pin to fill into the zip field.
 						refreshMap();
 						$('#startLocationForm').trigger('close');
 					}
@@ -245,6 +249,7 @@ var newStartLocationHandler = function() {
 					if (tmpData.resourceSets[0].resources[0].point.coordinates) {
 						startingLat = tmpData.resourceSets[0].resources[0].point.coordinates[0];
 						startingLon = tmpData.resourceSets[0].resources[0].point.coordinates[1];
+						startingZip = tmpData.resourceSets[0].resources[0].address.postalCode; // Save this for the zip radius pin to fill into the zip field.
 						refreshMap();
 						$('#startLocationForm').trigger('close');
 					}
@@ -291,7 +296,6 @@ var displayBreweryData = function() {
 	var displayIndex = 0;
 
 	if (breweryData.length === 0) {
-		console.log('nothing here');
 		$('#noBrewery').removeClass('hide');
 		breweryList.append(
 			"<li style='border: none; color: rgb(180, 180, 180); background-color: rgb(230, 230, 230, 0.1); height:50vh;' class='flex-container align-middle align-center'>"
@@ -741,6 +745,10 @@ var initialize = function() {
 							startingState = stateLookup[data.resourceSets[0].resources[0].address.adminDistrict];
 							$("#byState").val(startingState);
 						}
+
+						$('#startState').val(data.resourceSets[0].resources[0].address.adminDistrict);
+						$('#startCity').val(startingCity);
+						$('#startAddress').val(startingAddress);
 					});
 				}
 			});
@@ -753,6 +761,7 @@ $(document).foundation();
 
 $('#startLocationSubmit').on('click', newStartLocationHandler);
 $("#searchCityState").on("click", searchCityState);
+$("#zip-pin").on("click", defaultRadiusZip);
 $("#searchZipRadius").on("click", searchZipRadius);
 $("#filterBy").on("click", "input", displayBreweryData);
 breweryList.on("click", "div:not(.flex-container)", processAddToTourClick);
