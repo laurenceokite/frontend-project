@@ -93,6 +93,10 @@ div.small.button-group {
   margin-bottom: .3rem !important;
 }
 
+#brew-toggle .menu {
+  padding: .85em 1em;
+}
+
 .button.submit, .button.submit:focus {
   margin: 1rem 0;
   background: linear-gradient(40deg, var(--main-green), var(--blue-green)) !important;
