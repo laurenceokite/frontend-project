@@ -93,8 +93,28 @@ div.small.button-group {
   margin-bottom: .3rem !important;
 }
 
-#brew-toggle .menu {
-  padding: .85em 1em;
+.tabs a {
+  padding: .5rem 1rem;
+  font-weight: bolder;
+  background-color: var(--dark-grey);
+  color: black;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.tabs a:hover {
+  background-color: var(--light-grey);
+  color: black;
+}
+
+.tabs {
+  background: rgb(0,0,0,0.0) !important;
+  box-shadow: none;
+  border: none;
+}
+
+.tabs-title>a:focus, .tabs-title>a[aria-selected=true] {
+  color: black;
 }
 
 .button.submit, .button.submit:focus {

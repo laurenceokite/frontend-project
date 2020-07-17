@@ -201,6 +201,12 @@
           </div>
         </li>
       </ul>
+      <div id="drive-walk-toggle" class="cell small-10">
+        <ul class="tabs flex-container align-right" data-tabs>
+          <li class="tabs-title is-active"><a href="#" aria-selected="true">Walking</a></li>
+          <li class="tabs-title"><a href="#">Driving</a></li>
+        </ul>
+      </div>
       <!-- map and list -->
       <div id="output" class="cell small-10">
         <div class="grid-x">
@@ -210,15 +216,10 @@
             <div style="height: 43vh;" class="grid-x">
               <ol id="mapToggle" class="cell list-group hide">
                 <li id="brew-toggle" style="height: 7vh; padding: .5rem;" class="list-group-item flex-container align-justify align-middle">
-                  <ul class="menu dropdown small button-group no-gaps" data-dropdown-menu>
-                    <li id="brew-toggle-list" class="secondary button">Breweries</li>                    
-                    <li id="brew-toggle-tour" class="secondary button hollow">Tour<span id="tourCount" class="badge primary hide"></span>
-                      <ul class="menu">
-                        <li>Walking</li>
-                        <li>Driving</li>
-                      </ul>
-                    </li>
-                  </ul>
+                  <div class="small button-group no-gaps">
+                    <a id="brew-toggle-list" class="secondary button">Breweries</a>
+                    <a id="brew-toggle-tour" class="secondary button hollow">Tour<span id="tourCount" class="badge primary hide"></span></a>
+                  </div>
                   <p id="tourHelperPar">Select a Brewery to Add it to Your Route</p>
                   <button id="startLocationButton" class="secondary button small hollow hide" data-open="startLocationForm">Change Starting Location</button>
                   <div id="startLocationForm" class="reveal" data-reveal>
