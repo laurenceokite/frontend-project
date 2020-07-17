@@ -438,7 +438,17 @@ var refreshMap = function() {
 				directionsManager = new Microsoft.Maps.Directions.DirectionsManager(map);
 			}
 			
-			directionsManager.setRequestOptions({ routeDraggable: false, routeMode: Microsoft.Maps.Directions.RouteMode.driving });
+		
+				
+			
+			if ($('#walking').hasClass('is-active')) {
+				$('#disclaimer').addClass('hide')
+				directionsManager.setRequestOptions({ routeDraggable: false, routeMode: Microsoft.Maps.Directions.RouteMode.walking});
+			} else {
+				$('#disclaimer').removeClass('hide')
+				directionsManager.setRequestOptions({ routeDraggable: false, routeMode: Microsoft.Maps.Directions.RouteMode.driving});
+			}
+
 			directionsManager.setRenderOptions({ itineraryContainer: document.querySelector("#displayInfo") });
 
 			var tourLocs = Array.from(tourList);
@@ -585,6 +595,7 @@ var changeTourMode = function(newMode) {
 	$("#brew-toggle-tour").toggleClass("hollow", !tourMode);
 	$('#tourHelperPar').toggleClass('hide', tourMode);
 	$('#startLocationButton').toggleClass('hide', !tourMode);
+	$('#drive-walk-toggle').toggleClass('hide', !tourMode);
 
 	// Brewery List would have been destroyed by tour mode, make sure we restore it.
 	if (!tourMode) {
@@ -756,6 +767,14 @@ var initialize = function() {
 	}
 }
 
+function directionsToggleHandler (event) {
+	$(this).addClass('is-active');
+	$(this).children().attr('aria-selected', 'true');
+	$(this).siblings().removeClass('is-active');
+	$(this).siblings().children().removeAttr('aria-selected', 'true');
+	refreshMap();
+}
+
 initialize();
 $(document).foundation();
 
@@ -768,3 +787,4 @@ breweryList.on("click", "div:not(.flex-container)", processAddToTourClick);
 breweryList.on("click", "input[name='favorite']", processFavoriteClick);
 breweryList.on("click", "input[name='visited']", processVisitedClick);
 $("#brew-toggle").on("click", "a.hollow", processMapToggle);
+$('#drive-walk-toggle').on('click', 'li', directionsToggleHandler);

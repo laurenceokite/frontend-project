@@ -96,16 +96,17 @@ div.small.button-group {
 .tabs a {
   padding: .5rem 1rem;
   font-weight: bolder;
-  background-color: var(--dark-grey);
+  background-color: var(--gin-fizz);
   color: black;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
 }
 
 .tabs a:hover {
-  background-color: var(--light-grey);
+  background-color: var(--blue-green);
   color: black;
 }
+
 
 .tabs {
   background: rgb(0,0,0,0.0) !important;
@@ -115,6 +116,7 @@ div.small.button-group {
 
 .tabs-title>a:focus, .tabs-title>a[aria-selected=true] {
   color: black;
+  background-color: var(--main-green);
 }
 
 .button.submit, .button.submit:focus {
