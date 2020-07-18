@@ -21,27 +21,9 @@ body {
   url(../images/r5oK9D.jpg);
 }
 
-header.top-bar {
-  background: rgb(0, 0, 0, 0.0);
-  margin-bottom: 1rem !important;
-}
-
-header img {
+img.logo {
   width: 10rem;
   height: auto;
-  background-color: rgb(0, 0, 0, 0.0);
-  margin-top: 5px;
-  margin-left: 15vw;
-}
-
-ul.menu {
-  background-color: rgb(0, 0, 0, 0.0);
-}
-
-.top-bar-right a {
-  font-size: 2.5rem;
-  margin-top: 2.5rem;
-  margin-right: 2.5rem;
 }
 
 #list-number {
@@ -176,12 +158,9 @@ footer {
   font-weight: bold;
 }
 
-
 :last-child:not(.is-active)>.accordion-title {
   border: none;
 }
-
-
 
 .accordion-item a {
   color: white;
