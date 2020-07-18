@@ -22,9 +22,15 @@
       </ul>
     </div>
   </header>
+  
+  
   <!-- main grid -->
   <main class="grid-container">
     <div class="grid-x align-center align-middle small-margin-collapse">
+        
+        <!-- error message location-->
+        <p class="align-middle small-10" id="errorMsg"></p>
+
       <!-- accordion search -->
       <ul id="searchForm" class="cell small-10 accordion" data-accordion>
         <li class="accordion-item is-active" data-accordion-item>
@@ -120,12 +126,12 @@
             <div class="grid-container">
               <form id="byDistance">
                 <div class="grid-x grid-padding-x align-middle align-center">
-                  <div id="BadZipCode" class="reveal" data-reveal>
+                  <!--<div id="BadZipCode" class="reveal" data-reveal>
                     <p class="text-center">Invalid Zip Code</p>
                     <button class="close-button" data-close aria-label="Close modal" type="button">
                       <span aria-hidden="true">&times;</span>
                     </button>
-                  </div>
+                  </div>-->
                   <div class="small-2 medium-2 large-1 cell grid-padding-x">
                     <label for="distanceOption" class="medium-text-right middle">Within</label>
                   </div>
@@ -201,6 +207,7 @@
           </div>
         </li>
       </ul>
+
       <div id="drive-walk-toggle" class="cell small-10 hide">
         <ul class="tabs flex-container align-right align-middle">
           <li id="walking" class="tabs-title is-active"><a href="#" aria-selected="true">Walking</a></li>
