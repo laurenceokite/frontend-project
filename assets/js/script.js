@@ -768,6 +768,7 @@ var initialize = function() {
 }
 
 function directionsToggleHandler (event) {
+	event.preventDefault();
 	$(this).addClass('is-active');
 	$(this).children().attr('aria-selected', 'true');
 	$(this).siblings().removeClass('is-active');
