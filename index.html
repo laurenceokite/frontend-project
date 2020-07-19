@@ -13,7 +13,7 @@
   </head>
 <body>
   <!-- top bar -->
-  <header style="margin-bottom: 4rem;" class="top-bar grid-x">
+  <!--header style="margin-bottom: 4rem;" class="top-bar grid-x">
     <div class="cell small-10">
       <ul class="menu">
         <li class="menu-text">
@@ -21,16 +21,22 @@
         </li>
       </ul>
     </div>
-  </header>
-  
-  
+  </header-->
   <!-- main grid -->
   <main class="grid-container">
     <div class="grid-x align-center align-middle small-margin-collapse">
-        
-        <!-- error message location-->
-        <p class="align-middle small-10" id="errorMsg"></p>
-
+      <div class="cell small-10">
+        <img src="./assets/images/HopTo Logo.png" alt="hop to logo" class="logo" />
+      </div>
+      <div class="cell small-10">
+        <p class="lead">
+          Want to find some great local beer, either in your hometown or while on vacation?  Hop To has you covered.  Search by city, state, or zip code, then click on breweries in the list to add them to your tour route.
+          Check off the ones you've visited or save your favorites for later.
+        </p>
+        <p class="lead"><em>
+          Be responsible, always remember to designate a sober driver!
+        </em></p>
+      </div>
       <!-- accordion search -->
       <ul id="searchForm" class="cell small-10 accordion" data-accordion>
         <li class="accordion-item is-active" data-accordion-item>
@@ -213,8 +219,6 @@
           <li id="walking" class="tabs-title is-active"><a href="#" aria-selected="true">Walking</a></li>
           <li id="driving" class="tabs-title"><a href="#">Driving</a></li>
         </ul>
-        <p id="disclaimer" class="hide" style="color: red; font-weight: bold; text-shadow: 0 0 3px white; width: 45%; font-size: .8rem; margin: .6rem 0 0 .6rem; position: absolute; z-index: 9999;">Be responsible, Always remember to designate a sober driver!</p>
-
       </div>
       <!-- map and list -->
       <div id="output" class="cell small-10">
