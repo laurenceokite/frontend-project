@@ -29,7 +29,7 @@ var tourList = [];
 // Handler for the Search button
 var searchCityState = function (event) {
     event.preventDefault();
-    $("#errorMsg").hide();
+    updateErrorMessage("hide", "");
     var cityName = $("#byCity").val();
     var stateName = $("#byState").val();
 
@@ -68,9 +68,7 @@ var searchCityState = function (event) {
                 })
             }
             else {
-                
-                $("#errorMsg").text("Error accessing brewery API.")
-                $("#errorMsg").show();
+                updateErrorMessage("show", "Error accessing brewery API.");
                 console.log("ERROR ACCESSING BREWERY API!")
             }
         })
@@ -81,7 +79,7 @@ var searchCityState = function (event) {
 //Search for breweries by radius from given ZIP
 var searchZipRadius = function (event) {
     event.preventDefault();
-    $("#errorMsg").hide();
+    updateErrorMessage("hide", "");
     var buildKeyZIP = "";
     var buildKeyMaps = "";
     var radius = $("#distanceOption").val();
@@ -100,7 +98,6 @@ var searchZipRadius = function (event) {
         
 
         if (response.ok) {
-            $("#errorMsg").text("")
             //$("#BadZipCode").addClass("hide");
             //console.log("response ok")
 
@@ -132,8 +129,7 @@ var searchZipRadius = function (event) {
                 }).catch(function (error) {
                     // TODO - Display an error message! (issue #32)
                     console.log(error);
-                    $("#errorMsg").text("Error accessing brewery API.")
-                    $("#errorMsg").show();
+                    updateErrorMessage("show", "Error accessing brewery API.");
                 });
             })
 
@@ -141,19 +137,16 @@ var searchZipRadius = function (event) {
         else {
             if (response.status == 404) {
                 //show invalid ZIP error
-                $("#errorMsg").text("Ooh. That was a valid ZIP but it wasn't a real one. Are you sure you know what you're doing?");
-                
-                $("#errorMsg").show();
+                updateErrorMessage("show", "Ooh. That was a valid ZIP but it wasn't a real one. Are you sure you know what you're doing?");
             }
             if (response.status == 400) {
                 //show invalid ZIP error
-                $("#errorMsg").text("Ope! Looks like your ZIP code wasn't either 5 digits or the ZIP+4 format. Wanna try that again?");
-                $("#errorMsg").show();
+                updateErrorMessage("show", "Ope! Looks like your ZIP code wasn't either 5 digits or the ZIP+4 format. Wanna try that again?");
             }
             if (response.status == 429) {
                 //show too popular error msg
-                $("#errorMsg").text("Ope! Looks like our site is more popular that expected. Try again shortly, or search by city name in the meantime.");
-                $("#errorMsg").show();
+                updateErrorMessage("show", "Ope! Looks like our site is more popular that expected. Try again shortly, or search by city name in the meantime.");
+
             }
         }
 
@@ -734,7 +727,7 @@ var isBreweryInTourList = function(testBrewery) {
 
 // Assembles our Bing key and adds the necessary JS reference.
 var initialize = function() {
-    $("#errorMsg").hide();
+    updateErrorMessage("hide", "");
 	var buildKey = "";
 
 	for (var i = 0; i < bingFragments.length; i++) {
@@ -784,8 +777,6 @@ var initialize = function() {
 			});
 		});
     }
-
-    
 }
 
 function directionsToggleHandler (event) {
@@ -796,6 +787,12 @@ function directionsToggleHandler (event) {
 	refreshMap();
 }
 
+//visibility should be a string, either "hide" or anything else
+var updateErrorMessage = function(visibility, msg) {
+    $("#errorMsg").text(msg)
+    if (visibility === "hide"){$("#errorMsg").hide();}
+    else { $("#errorMsg").show();}
+}
 initialize();
 $(document).foundation();
 
