@@ -437,15 +437,10 @@ var refreshMap = function() {
 			if (!directionsManager) {
 				directionsManager = new Microsoft.Maps.Directions.DirectionsManager(map);
 			}
-			
-		
-				
-			
+
 			if ($('#walking').hasClass('is-active')) {
-				$('#disclaimer').addClass('hide')
 				directionsManager.setRequestOptions({ routeDraggable: false, routeMode: Microsoft.Maps.Directions.RouteMode.walking});
 			} else {
-				$('#disclaimer').removeClass('hide')
 				directionsManager.setRequestOptions({ routeDraggable: false, routeMode: Microsoft.Maps.Directions.RouteMode.driving});
 			}
 
@@ -768,6 +763,7 @@ var initialize = function() {
 }
 
 function directionsToggleHandler (event) {
+	event.preventDefault();
 	$(this).addClass('is-active');
 	$(this).children().attr('aria-selected', 'true');
 	$(this).siblings().removeClass('is-active');
