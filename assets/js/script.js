@@ -30,6 +30,9 @@ var tourList = [];
 var searchCityState = function (event) {
     event.preventDefault();
     updateErrorMessage("hide", "");
+    $("#backgrnd").show();
+    $("#waitingGIF").show();
+
     var cityName = $("#byCity").val();
     var stateName = $("#byState").val();
 
@@ -70,15 +73,20 @@ var searchCityState = function (event) {
             else {
                 updateErrorMessage("show", "Error accessing brewery API.");
                 console.log("ERROR ACCESSING BREWERY API!")
+                $("#backgrnd").hide();
+                $("#waitingGIF").hide();
             }
         })
     }
     getResults(1);
+
 }
 
 //Search for breweries by radius from given ZIP
 var searchZipRadius = function (event) {
     event.preventDefault();
+    $("#backgrnd").show();
+    $("#waitingGIF").show();
     updateErrorMessage("hide", "");
     var buildKeyZIP = "";
     var buildKeyMaps = "";
@@ -135,6 +143,8 @@ var searchZipRadius = function (event) {
 
         }
         else {
+            $("#backgrnd").hide();
+            $("#waitingGIF").hide();
             if (response.status == 404) {
                 //show invalid ZIP error
                 updateErrorMessage("show", "Ooh. That was a valid ZIP but it wasn't a real one. Are you sure you know what you're doing?");
@@ -151,6 +161,7 @@ var searchZipRadius = function (event) {
         }
 
     })
+
 
 }
 
@@ -305,9 +316,12 @@ var getLatitudeLongitude = function(idx, updateMapBounds=false) {
 var displayBreweryData = function() {
 	var i;
 	var displayIndex = 0;
-
+    $("#backgrnd").show();
+    $("#waitingGIF").show();
 	if (breweryData.length === 0) {
-		$('#noBrewery').removeClass('hide');
+        $('#noBrewery').removeClass('hide');
+        $("#backgrnd").hide();
+        $("#waitingGIF").hide();
 		breweryList.append(
 			"<li style='border: none; color: rgb(180, 180, 180); background-color: rgb(230, 230, 230, 0.1); height:50vh;' class='flex-container align-middle align-center'>"
 			+ "There Doesn't Seem to Be Any Breweries Here.</li>"
@@ -352,7 +366,9 @@ var displayBreweryData = function() {
 		$('#tourCount').addClass('hide');
 	}
 
-	refreshMap();
+    refreshMap();
+    $("#backgrnd").hide();
+    $("#waitingGIF").hide();
 }
 
 // Helper function used to check current brewer against filters.
@@ -723,8 +739,11 @@ var isBreweryInTourList = function(testBrewery) {
 // Assembles our Bing key and adds the necessary JS reference.
 var initialize = function() {
     updateErrorMessage("hide", "");
-	var buildKey = "";
+	
+    $("#backgrnd").hide();
+    $("#waitingGIF").hide();
 
+    var buildKey = "";
 	for (var i = 0; i < bingFragments.length; i++) {
 		buildKey += bingFragments[(13 * i) % bingFragments.length];
 	}
