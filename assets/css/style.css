@@ -19,6 +19,7 @@ main ul {
 body {
   background-image: linear-gradient(180deg, var(--gin-fizz), rgb(241, 250, 237, 0.8)),
   url(../images/r5oK9D.jpg);
+  position: relative;
 }
 
 img.logo {
@@ -124,7 +125,7 @@ div.small.button-group {
 
 .button.submit:hover {
   background: var(--main-green) !important;
-  border: none !important;
+  /*border: none !important;*/
 }
 
 .button.secondary {
@@ -318,31 +319,66 @@ input:checked~.switch-paddle {
   border-bottom: 1px solid #e6e6e6;
 }
   
-  .list-group-item > :last-child {
+.list-group-item > :last-child {
     margin-bottom: 0;
     border-bottom: none;
-  }
+}
   
-  .list-group-item.active {
+.list-group-item.active {
     color: #fefefe;
     background-color: #1779ba;
     border-color: 1px solid #1779ba;
-  }
+}
   
-  .list-group-item:hover, .list-group-item:focus {
+.list-group-item:hover, .list-group-item:focus {
     background-color: #e6e6e6;
-  }
+}
   
-  .list-group-item:hover.active, .list-group-item:focus.active {
+.list-group-item:hover.active, .list-group-item:focus.active {
     background-color: #1779ba;
-  }
+}
   
-  .list-group-item.disabled, .list-group-item.disabled:hover, .list-group-item.disabled:focus, .list-group-item[disabled], .list-group-item[disabled]:hover, .list-group-item[disabled]:focus {
+.list-group-item.disabled, .list-group-item.disabled:hover, .list-group-item.disabled:focus, .list-group-item[disabled], .list-group-item[disabled]:hover, .list-group-item[disabled]:focus {
     color: #8a8a8a;
     cursor: not-allowed;
     background-color: #fefefe;
-  }
+}
   
+#waitingGIF{
+    
+
+    z-index: 3;
+    width: 150px;
+    margin: 0 auto;
+    position: fixed;
+    right: 50vw;
+    transform: translateX(-50%);
+    top: 50vh;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+#backgrnd{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+
+    right: 0;
+    top: 0;
+    background-image: radial-gradient(white, var(--main-green));
+    opacity: .7;
+    z-index: 2;
+}
+
+#errorMsg {
+    display:none;
+    text-align: center;
+    background-color: rgba(255,0,0,.4);
+    padding: 10px 0;
+    font-weight: bold;
+    font-size: .75rem;
+    color: #fefefe;
+}
+
   @media screen and (max-width: 39.9375em) {
     .button.small-only-expanded {
       display: block;

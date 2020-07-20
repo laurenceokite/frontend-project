@@ -22,8 +22,11 @@
       </ul>
     </div>
   </header-->
+    <img src="assets/images/waiting.gif" id="waitingGIF" alt="searching...">
+    
   <!-- main grid -->
   <main class="grid-container">
+    <div id="backgrnd"></div>
     <div class="grid-x align-center align-middle small-margin-collapse">
       <div class="cell small-10">
         <img src="./assets/images/HopTo Logo.png" alt="hop to logo" class="logo" />
@@ -132,12 +135,12 @@
             <div class="grid-container">
               <form id="byDistance">
                 <div class="grid-x grid-padding-x align-middle align-center">
-                  <div id="BadZipCode" class="reveal" data-reveal>
+                  <!--<div id="BadZipCode" class="reveal" data-reveal>
                     <p class="text-center">Invalid Zip Code</p>
                     <button class="close-button" data-close aria-label="Close modal" type="button">
                       <span aria-hidden="true">&times;</span>
                     </button>
-                  </div>
+                  </div>-->
                   <div class="small-2 medium-2 large-1 cell grid-padding-x">
                     <label for="distanceOption" class="medium-text-right middle">Within</label>
                   </div>
@@ -213,6 +216,7 @@
           </div>
         </li>
       </ul>
+
       <div id="drive-walk-toggle" class="cell small-10 hide">
         <ul class="tabs flex-container align-right align-middle">
           <li id="walking" class="tabs-title is-active"><a href="#" aria-selected="true">Walking</a></li>
